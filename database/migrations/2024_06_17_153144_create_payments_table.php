@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('phone');
-            $table->morphs('userable');
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('patient_id')->references('id')->on('patients')->onDelete('cascade');
+            $table->morphs('payable');
+            $table->integer('amount')->unsigned();
+            $table->timestamps();
         });
     }
 
@@ -22,9 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('phone');
-            $table->dropMorphs('userable');
-        });
+        Schema::dropIfExists('payments');
     }
 };

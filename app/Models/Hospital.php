@@ -9,6 +9,11 @@ class Hospital extends Model
 {
     use HasFactory;
 
+    public function user()
+    {
+        return $this->morphOne(User::class, 'userable');
+    }
+
     public function units()
     {
         return $this->hasMany(IntensiveCareUnit::class);

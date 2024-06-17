@@ -19,6 +19,11 @@ class Nurse extends Model
         return $this->hasMany(NurseRating::class);
     }
 
+    public function payments()
+    {
+        return $this->morphMany(Payment::class, 'payable');
+    }
+
     public function averageRating()
     {
         return $this->ratings()->avg('rating');
