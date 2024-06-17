@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('intensive_care_units', function (Blueprint $table) {
             $table->id();
-            $table->foreign('hospital_id')->references('id')->on('hospitals')->onDelete('cascade');
+            $table->foreignId('hospital_id')->references('id')->on('hospitals')->onDelete('cascade');
             $table->integer('capacity')->unsigned();
             $table->timestamps();
         });

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('intensive_care_equipment', function (Blueprint $table) {
             $table->id();
-            $table->foreign('intensive_care_unit_id')->references('id')->on('intensive_care_units')->onDelete('cascade');
-            $table->foreign('equipment_id')->references('id')->on('equipments')->onDelete('cascade');
+            $table->foreignId('intensive_care_unit_id')->references('id')->on('intensive_care_units')->onDelete('cascade');
+            $table->foreignId('equipment_id')->references('id')->on('equipments')->onDelete('cascade');
             $table->timestamps();
         });
     }

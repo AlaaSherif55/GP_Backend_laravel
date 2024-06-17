@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('intensive_care_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreign('intensive_care_unit_id')->references('id')->on('intensive_care_units')->onDelete('cascade');
+            $table->foreignId('intensive_care_unit_id')->references('id')->on('intensive_care_units')->onDelete('cascade');
             $table->string('patient_name');
             $table->string('patient_phone');
             $table->string('status');
