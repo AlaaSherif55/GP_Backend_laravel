@@ -18,4 +18,10 @@ class IntensiveCareUnit extends Model
     {
         return $this->hasMany(IntensiveCareApplication::class);
     }
+
+    public function equipments()
+    {
+        return $this->belongsToMany(Equipment::class, 'intensive_care_unit_eqipments');
+    }
 }
+
