@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('doctors', function (Blueprint $table) {
+        Schema::create('nurses', function (Blueprint $table) {
             $table->id();
             $table->string('image');
             $table->string('university');
             $table->string('qualifications');
             $table->string('city');
-            $table->string('Address');
             $table->string('price');
-            $table->boolean('online');
-            $table->string('specialization');
-            $table->boolean('visit')->default(0);
             $table->string('work_start');
             $table->string('work_end');
             $table->string('work_days');
@@ -34,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('doctors');
+        Schema::dropIfExists('nurses');
     }
 };

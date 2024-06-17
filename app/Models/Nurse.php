@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Patient extends Model
+class Nurse extends Model
 {
     use HasFactory;
 
@@ -14,14 +14,13 @@ class Patient extends Model
         return $this->morphOne(User::class, 'userable');
     }
 
-    public function doctor_ratings() 
+    public function ratings()
     {
-        return $this->hasMany(DoctorRating::class);
+        return $this->hasMany(NurseRating::class);
     }
 
-    public function patient_ratings() 
+    public function averageRating()
     {
-        return $this->hasMany(DoctorRating::class);
+        return $this->ratings()->avg('rating');
     }
-
 }
