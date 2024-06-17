@@ -19,9 +19,19 @@ class Patient extends Model
         return $this->hasMany(DoctorRating::class);
     }
 
-    public function patient_ratings() 
+    public function nurse_ratings() 
     {
-        return $this->hasMany(DoctorRating::class);
+        return $this->hasMany(NurseRating::class);
+    }
+
+    public function doctor_appointments() 
+    {
+        return $this->hasMany(DoctorAppointment::class);
+    }
+
+    public function nurse_appointments() 
+    {
+        return $this->hasMany(NurseAppointment::class);
     }
 
 }

@@ -19,6 +19,11 @@ class Doctor extends Model
         return $this->hasMany(DoctorRating::Class);
     }
 
+    public function appointments()
+    {
+        return $this->hasMany(DoctorAppointment::Class);
+    }
+
     public function averageRating()
     {
         return $this->ratings()->avg('rating');
