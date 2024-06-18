@@ -8,6 +8,7 @@ use App\Models\IntensiveCareUnit;
 use App\Models\IntensiveCareApplication;
 use App\Models\IntensiveCareEquipment;
 use App\Http\Requests\StoreIntensiveCareUnitRequest;
+use App\Http\Requests\UpdateIntensiveCareUnitRequest;
 use App\Http\Resources\IntensiveCareUnitResource;
 
 class IntensiveCareUnitController extends Controller
@@ -53,9 +54,16 @@ class IntensiveCareUnitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateIntensiveCareUnitRequest $request, string $id)
     {
-        //
+        $icu = IntensiveCareUnit::findOrFail($id);
+        $request_params = $request->validated();
+        $request_params['hospital_id'] = $icu->hospital_id;
+        $equipments = $request_params['equipments'];
+         $icu->update($request_params);
+        $icu->equipments()->sync($equipments);
+        
+        return response()->json(new IntensiveCareUnitResource($icu) , 200);
     }
 
     /**

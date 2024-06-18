@@ -11,7 +11,7 @@ class UpdateIntensiveCareUnitRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,18 @@ class UpdateIntensiveCareUnitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'capacity' => ['required', 'integer'],
+            'equipments' => ['required' , 'exists:equipment,id'],
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'capacity.required' => 'The capacity field is required.',
+            'capacity.integer' => 'The capacity must be an integer.',
+            'equipments.required' => 'The equipments field is required.',
+            'equipments.exists' => 'One or more selected equipments do not exist.',
+        ];
+    }
+
 }
