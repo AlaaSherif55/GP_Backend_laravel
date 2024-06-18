@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class IntensiveCareUnit extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'hospital_id',
+        'capacity',
+        
+    ];
 
     public function hospital()
     {
@@ -21,7 +26,7 @@ class IntensiveCareUnit extends Model
 
     public function equipments()
     {
-        return $this->belongsToMany(Equipment::class, 'intensive_care_unit_eqipments');
+        return $this->belongsToMany(Equipment::class, 'intensive_care_equipment');
     }
 }
 
