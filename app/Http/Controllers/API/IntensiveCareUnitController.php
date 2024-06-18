@@ -46,7 +46,8 @@ class IntensiveCareUnitController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $icu = IntensiveCareUnit::with('equipments')->find($id);
+        return new IntensiveCareUnitResource($icu);
     }
 
     /**
@@ -62,6 +63,9 @@ class IntensiveCareUnitController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $icu = IntensiveCareUnit::findOrFail($id);
+        $icu->equipments()->detach();
+        $icu->delete();
+        return response()->json('ICU deleted successfully', 204);
     }
 }
