@@ -8,16 +8,21 @@ use App\Models\IntensiveCareUnit;
 use App\Models\IntensiveCareApplication;
 use App\Models\IntensiveCareEquipment;
 use App\Http\Requests\StoreIntensiveCareUnitRequest;
+use App\Http\Resources\IntensiveCareUnitResource;
 
 class IntensiveCareUnitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
+        public function index()
+        {
+            $hospital_id =1;
+            $icus = IntensiveCareUnit::with('equipments')
+            ->where('hospital_id', $hospital_id)
+            ->get();
+            return IntensiveCareUnitResource::collection($icus);
+        }
 
     /**
      * Store a newly created resource in storage.
