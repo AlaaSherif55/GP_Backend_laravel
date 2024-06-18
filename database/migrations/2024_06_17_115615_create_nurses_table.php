@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('university');
             $table->string('qualifications');
             $table->string('city');
-            $table->string('price');
+            $table->integer('fees');
+            $table->boolean('online')->default(0);
             $table->string('work_start');
             $table->string('work_end');
             $table->string('work_days');

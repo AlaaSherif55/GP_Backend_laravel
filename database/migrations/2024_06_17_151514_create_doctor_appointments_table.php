@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreignId('doctor_id')->references('id')->on('doctors')->onDelete('cascade');
             $table->enum('kind_of_visit', ['home','clinic']);
+            $table->enum('day', ['Fri','Sat','Sun','Mon','Tue','Wed','Thu']);
             $table->timestamps();
         });
     }
