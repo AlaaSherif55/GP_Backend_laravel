@@ -22,7 +22,12 @@ class StoreDoctorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,NULL,id,userable_type,App\Models\Doctor',
+            'password' => 'required|string|min:6',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
+
+
     }
 }
