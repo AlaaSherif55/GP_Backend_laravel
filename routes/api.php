@@ -8,6 +8,4 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Registeration
-Route::post('DoctorRegister', [AuthController::class, 'doctorRegister']);
-
+Route::post('DoctorRegister', [AuthController::class, 'doctorRegister'])->middleware('role:any');
