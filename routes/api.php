@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('DoctorRegister', [AuthController::class, 'doctorRegister'])->middleware('role:any');
+Route::post('PatientRegister', [AuthController::class, 'patientRegister'])->middleware('role:any');

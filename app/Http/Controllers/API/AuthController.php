@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDoctorRequest;
+use App\Http\Requests\StorePatientRequest;
 use App\Models\Doctor;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -19,8 +21,7 @@ login for patient , nurse , doctor
 class AuthController extends Controller
 {
    
-    public function doctorRegister(StoreDoctorRequest $request)
-    {
+    public function doctorRegister(StoreDoctorRequest $request){
         try {
             $validatedData = $request->validated();
             
@@ -31,14 +32,17 @@ class AuthController extends Controller
                 if (!$image) {
                     throw new \Exception('Failed to upload image to Cloudinary');
                 }
-            }
-    
-            $doctor = new Doctor([
+            }/*else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No image file uploadedaa',
+                ], 400);
+            }*/
+            $doctor = Doctor::create([
                 'image' => $image,
             ]);
-            
-            $doctor->save();
     
+
             $user = new User([
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
@@ -46,12 +50,14 @@ class AuthController extends Controller
                 'phone' => $validatedData['phone'],
                 'role' => 'doctor', 
             ]);
-      
+            
+         
             $user->save(); 
     
-            $user->userable()->associate($doctor); 
-            $user->save();
+          
+            $doctor->user()->save($user);
     
+
             $token = $user->createToken("API TOKEN")->plainTextToken;
     
             return response()->json([
@@ -63,6 +69,48 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to register doctor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function patientRegister(StorePatientRequest $request){
+        try {
+            $validatedData = $request->validated();
+
+            $patient = Patient::create([
+                'history'=> $validatedData['history'],
+                'gender' => $validatedData['gender'],
+                'birth_date' =>$validatedData['birth_date']
+            ]);
+    
+
+            $user = new User([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => bcrypt($validatedData['password']),
+                'phone' => $validatedData['phone'],
+                'role' => 'patient', 
+            ]);
+            
+         
+            $user->save(); 
+    
+          
+            $patient->user()->save($user);
+    
+
+            $token = $user->createToken("API TOKEN")->plainTextToken;
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Patient created successfully',
+                'token' => $token
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to register patient',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -104,6 +152,7 @@ class AuthController extends Controller
     
         return $fileUrl;
     }
+
     public function getRoleByToken($token){
         
         $currentRequestPersonalAccessToken = PersonalAccessToken::findToken($token);
