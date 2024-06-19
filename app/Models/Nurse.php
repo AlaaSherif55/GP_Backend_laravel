@@ -8,7 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Nurse extends Model
 {
     use HasFactory;
-
+    protected $fillable = [
+        'image',
+        'university',
+        'qualifications' ,
+        'city' ,
+        'fees',
+        'work_start',
+        'work_end',
+        'work_days',
+        
+    ];
     public function user()
     {
         return $this->morphOne(User::class, 'userable');
