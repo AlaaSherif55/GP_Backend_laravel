@@ -63,5 +63,28 @@ class IntensiveCareApplicationController extends Controller
         return response()->json($ICUapplications); 
         
     }
+    public function updateStatus(Request $request, IntensiveCareApplication $application)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|string|max:255',
+        ]);
+    
+        // Update the application status
+        $application->update(['status' => $request->status]);
+    
+        if ($request->status === 'accepted') {
+            
+            $icu = $application->intensiveCareUnit;
+            if ($icu->capacity > 0) {
+                $icu->decrement('capacity');
+            } else {
+                return response()->json(['message' => 'ICU capacity is already at 0 and cannot be decreased further'], 400);
+            }
+        }
+    
+        return response()->json(['message' => 'Application status updated successfully']);
+    }
+    
 
 }
