@@ -19,7 +19,7 @@ class IntensiveCareUnitController extends Controller
         public function index()
         {
             $hospital_id =1;
-            $icus = IntensiveCareUnit::with('equipments')
+            $icus = IntensiveCareUnit::with('equipments' , 'hospital.user')
             ->where('hospital_id', $hospital_id)
             ->get();
             return IntensiveCareUnitResource::collection($icus);
@@ -47,7 +47,7 @@ class IntensiveCareUnitController extends Controller
      */
     public function show(string $id)
     {
-        $icu = IntensiveCareUnit::with('equipments')->find($id);
+        $icu = IntensiveCareUnit::with('equipments', 'hospital.user')->find($id);
         return new IntensiveCareUnitResource($icu);
     }
 
