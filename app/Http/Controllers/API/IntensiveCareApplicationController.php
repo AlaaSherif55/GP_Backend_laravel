@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\IntensiveCareApplication;
 use App\Http\Requests\StoreIntensiveCareApplicationRequest;
 use App\Http\Resources\IntensiveCareApplicationResource;
+use App\Models\Hospital;
 class IntensiveCareApplicationController extends Controller
 {
     /**
@@ -57,4 +58,10 @@ class IntensiveCareApplicationController extends Controller
     {
         //
     }
+    public function getApplications(Request $request, Hospital $hospital)  {
+        $ICUapplications = $hospital->units()->with(['applications.intensiveCareUnit.equipments'])->get()->pluck('applications')->flatten();
+        return response()->json($ICUapplications); 
+        
+    }
+
 }
