@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use \App\Http\Controllers\API\DoctorController;
 use \App\Models\Doctor;
+use \App\Models\Nurse;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,26 +19,49 @@ Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\Int
 Route::get('doctors', function (Request $request) {
     $query = Doctor::query();
 
-    if ($request->has('city'))
+    if ($request->has('city') && $request->input('city') !== '')
     {
-        $query->where('city', $request->input('city'));
+        $query->where('city' ,$request->input('city'));
     }
 
-    if ($request->has('specialization'))
+    if ($request->has('specialization') && $request->input('specialization') !== '')
     {
         $query->where('specialization', $request->input('specialization'));
     }
 
-    if ($request->has('available'))
+    if ($request->has('available') && $request->input('available') !== '')
     {
         $query->where('work_days', 'like', '%'.$request->input('available').'%');
     }
 
-    if ($request->has('fees'))
+    if ($request->has('fees') && $request->input('fees') !== '')
     {
         $query->where('clinic_fees', '<=', $request->input('fees'));
     }
-    $res = $query->paginate(5);
+    $res = $query->with('user')->paginate(5);
 
-    return $res;
+    return response()->json($res);
+});
+
+// get Nurses
+Route::get('nurses', function (Request $request) {
+    $query = Nurse::query();
+
+    if ($request->has('city') && $request->input('city') !== '')
+    {
+        $query->where('city' ,$request->input('city'));
+    }
+
+    if ($request->has('available') && $request->input('available') !== '')
+    {
+        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+    }
+
+    if ($request->has('fees') && $request->input('fees') !== '')
+    {
+        $query->where('fees', '<=', $request->input('fees'));
+    }
+    $res = $query->with('user')->paginate(5);
+
+    return response()->json($res);
 });
