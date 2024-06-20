@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Models\Patient;
+use Exception;
 
 class PatientController extends Controller
 {
@@ -13,7 +14,13 @@ class PatientController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $patients = Patient::all();
+            return response()->json($patients);
+        }
+        catch(Exception $e) {
+            return response()->json(["error" => $e], 405);
+        }
     }
 
     /**
@@ -29,7 +36,13 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        //
+        try {
+            $patient = Patient::findOrFail($patient->id);
+            return response()->json($patient);
+        }
+        catch(Exception $e) {
+            return response()->json(["error" => $e], 405);
+        }
     }
 
     /**
