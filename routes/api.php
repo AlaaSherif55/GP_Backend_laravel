@@ -12,4 +12,5 @@ Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class
 Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']);
 Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
 Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class);
+Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
 
