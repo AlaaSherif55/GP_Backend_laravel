@@ -92,4 +92,24 @@ class DoctorController extends Controller
         return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
 
     }
+    public function ApproveDoctorAppointments( Request $request,string $appointment_id ){
+        $appointment = DoctorAppointment::find($appointment_id);
+        
+        if ($appointment) {
+            $appointment->update(['status' =>$request['status']]);
+            return response()->json(["message" => "Appointment approved successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
+    }
+    public function AddNoteToDoctorAppointments( Request $request,string $appointment_id ){
+        $appointment = DoctorAppointment::find($appointment_id);
+        
+        if ($appointment) {
+            $appointment->update(['notes' =>$request['notes']]);
+            return response()->json(["message" => "Notes added successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
+    }
 }
