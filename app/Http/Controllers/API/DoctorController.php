@@ -29,7 +29,7 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
-        $employers = Doctor::findOrFail($doctor->id);
+        $doctor = Doctor::with('user')->findOrFail($doctor->id);
         return response()->json(["status" => "success", 
         "data" => $doctor
         ]);
@@ -40,7 +40,7 @@ class DoctorController extends Controller
      */
     public function update(Request $request, Doctor $doctor)
     {
-        //
+       
     }
 
     /**
