@@ -11,6 +11,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected $fillable = ['name', 'email', 'password', 'phone'];
+
     public function userable() {
         return $this-> morphTo();
     }
