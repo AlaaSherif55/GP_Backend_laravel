@@ -43,6 +43,12 @@ Route::get('doctors', function (Request $request) {
     return response()->json($res);
 });
 
+// get doctor
+Route::get('doctors/{id}', function ($id) {
+    $doctor = Doctor::with('user')->findOrFail($id);
+    return $doctor;
+});
+
 // get Nurses
 Route::get('nurses', function (Request $request) {
     $query = Nurse::query();
@@ -64,4 +70,10 @@ Route::get('nurses', function (Request $request) {
     $res = $query->with('user')->paginate(5);
 
     return response()->json($res);
+});
+
+// get doctor
+Route::get('doctors/{id}', function ($id) {
+    $nurse = Nurse::with('user')->findOrFail($id);
+    return $nurse;
 });
