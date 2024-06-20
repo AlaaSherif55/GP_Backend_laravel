@@ -12,6 +12,7 @@ use App\Models\DoctorAppointment;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\DoctorResource;
+use App\Http\Resources\DoctorAppointmentsResource;
 
 
 class DoctorController extends Controller
@@ -88,7 +89,7 @@ class DoctorController extends Controller
         $appointments = DoctorAppointment::with(['patient.user'])
         ->where('doctor_id', $doctor_id)
         ->get();
-        return response()->json(["status" => "success", "data" => $appointments]);
+        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
 
     }
 }
