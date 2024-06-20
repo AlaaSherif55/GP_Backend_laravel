@@ -84,7 +84,10 @@ class DoctorController extends Controller
     public function getDoctorAppointments( string $doctor_id ){
         // $perPage = request()->query('perPage', 7);
         $doctor = new DoctorResource(Doctor::find($doctor_id));
-        $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
+        // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
+        $appointments = DoctorAppointment::with(['patient.user'])
+        ->where('doctor_id', $doctor_id)
+        ->get();
         return response()->json(["status" => "success", "data" => $appointments]);
 
     }
