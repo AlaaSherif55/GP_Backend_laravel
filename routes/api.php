@@ -12,3 +12,4 @@ Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCa
 Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
 Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class);
 Route::apiResource("doctors",DoctorController::class);
+Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
