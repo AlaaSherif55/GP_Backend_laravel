@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
+use App\Models\DoctorAppointment;
+
 use Illuminate\Http\Request;
 
 use App\Http\Resources\DoctorResource;
+use App\Http\Resources\DoctorAppointmentsResource;
 
 
 class DoctorController extends Controller
@@ -58,7 +61,7 @@ class DoctorController extends Controller
             $doctor->refresh();
             return response()->json([
                 "status" => "success",
-                "data" => new doctorResource($doctor)
+                "data" => new DoctorResource($doctor)
                 
             ]);
         } catch (\Exception $e) {
@@ -78,5 +81,35 @@ class DoctorController extends Controller
     public function destroy(Doctor $doctor)
     {
         //
+    }
+    public function getDoctorAppointments( string $doctor_id ){
+        // $perPage = request()->query('perPage', 7);
+        $doctor = new DoctorResource(Doctor::find($doctor_id));
+        // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
+        $appointments = DoctorAppointment::with(['patient.user'])
+        ->where('doctor_id', $doctor_id)
+        ->get();
+        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
+
+    }
+    public function ApproveDoctorAppointments( Request $request,string $appointment_id ){
+        $appointment = DoctorAppointment::find($appointment_id);
+        
+        if ($appointment) {
+            $appointment->update(['status' =>$request['status']]);
+            return response()->json(["message" => "Appointment approved successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
+    }
+    public function AddNoteToDoctorAppointments( Request $request,string $appointment_id ){
+        $appointment = DoctorAppointment::find($appointment_id);
+        
+        if ($appointment) {
+            $appointment->update(['notes' =>$request['notes']]);
+            return response()->json(["message" => "Notes added successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
     }
 }
