@@ -138,13 +138,13 @@ class AuthController extends Controller
     
             $nurse = Nurse::create([
                 'image' => $image,
-                'university' => $validatedData['university'],
-                'qualifications' => $validatedData['qualifications'],
-                'city' => $validatedData['city'],
-                'fees' => $validatedData['fees'],
-                'work_start' => $validatedData['work_start'],
-                'work_end' => $validatedData['work_end'],
-                'work_days' => $validatedData['work_days'],
+                'university' => $validatedData['university']??null,
+                'qualifications' => $validatedData['qualifications']??null,
+                'city' => $validatedData['city']??null,
+                'fees' => $validatedData['fees']??null,
+                'work_start' => $validatedData['work_start']??null,
+                'work_end' => $validatedData['work_end']??null,
+                'work_days' => $validatedData['work_days']??null,
             ]);
     
       
@@ -309,7 +309,7 @@ class AuthController extends Controller
     
         return response()->json(['error' => 'Invalid user role or no associated data found'], 400);
     }
-    
+
     public function getUser(Request $request){
         
             $user = $request->user();

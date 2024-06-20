@@ -14,7 +14,7 @@ Route::post('PatientRegister', [AuthController::class, 'patientRegister']);
 Route::post('NurseRegister', [AuthController::class, 'nurseRegister']);
 
 // Login
-Route::post('login', [AuthController::class, 'login'] )->middleware('role:nurse');  //without token
+Route::post('login', [AuthController::class, 'login'] );  //without token
 
 // Get user data from token (nurse-doctor-patient)
 Route::get('user', [AuthController::class, 'getUser'] )->middleware('auth:sanctum'); //token any role
