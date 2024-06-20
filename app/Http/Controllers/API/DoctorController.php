@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Support\Facades\DB;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
@@ -43,7 +46,30 @@ class DoctorController extends Controller
      */
     public function update(Request $request, Doctor $doctor)
     {
-       
+        try {
+            DB::beginTransaction();
+    
+            $user = $doctor->user;
+            $user->update($request->all());
+    
+            $doctor->update($request->all());
+          
+            DB::commit();
+            $doctor->refresh();
+            return response()->json([
+                "status" => "success",
+                "data" => new doctorResource($doctor)
+                
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+    
+            return response()->json([
+                "status" => "error",
+                "message" => "Failed to update user and doctor",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
