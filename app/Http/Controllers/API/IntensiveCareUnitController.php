@@ -11,19 +11,36 @@ use App\Http\Requests\StoreIntensiveCareUnitRequest;
 use App\Http\Requests\UpdateIntensiveCareUnitRequest;
 use App\Http\Resources\IntensiveCareUnitResource;
 
+
 class IntensiveCareUnitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-        public function index()
-        {
-            $hospital_id =1;
-            $icus = IntensiveCareUnit::with('equipments' , 'hospital.user')
-            ->where('hospital_id', $hospital_id)
-            ->get();
-            return IntensiveCareUnitResource::collection($icus);
+    public function index(Request $request)
+    {
+        $hospital_id = $request->input('hospital_id');
+        $address = $request->input('address');
+    
+        $icus = IntensiveCareUnit::with('equipments', 'hospital.user');
+    
+        if ($hospital_id) {
+            // Filter by hospital_id
+            $icus = $icus->where('hospital_id', $hospital_id)->get();
+        } else {
+            // Filter by address if provided
+            if ($address) {
+                $icus = $icus->whereHas('hospital', function ($query) use ($address) {
+                    $query->where('address', 'like', '%' . $address . '%');
+                });
+            }
+            // Filter ICUs with capacity greater than 0
+            $icus = $icus->where('capacity', '>', 0)->get();
         }
+    
+        return IntensiveCareUnitResource::collection($icus);
+    }
+    
 
     /**
      * Store a newly created resource in storage.
