@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 
+use App\Http\Resources\DoctorResource;
+
+
 class DoctorController extends Controller
 {
     /**
@@ -31,7 +34,7 @@ class DoctorController extends Controller
     {
         $doctor = Doctor::with('user')->findOrFail($doctor->id);
         return response()->json(["status" => "success", 
-        "data" => $doctor
+        "data" => new DoctorResource($doctor)
         ]);
     }
 
