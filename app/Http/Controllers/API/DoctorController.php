@@ -29,7 +29,10 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor)
     {
-        //
+        $employers = Doctor::findOrFail($doctor->id);
+        return response()->json(["status" => "success", 
+        "data" => $doctor
+        ]);
     }
 
     /**
