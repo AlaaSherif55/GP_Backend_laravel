@@ -8,6 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Nurse extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'university',
+        'qualifications',
+        'city',
+        'rate',
+        'fees',
+        'image',
+        'work_start',
+        'work_end',
+        'online',
+        'work_days'
+    ];
 
     public function user()
     {

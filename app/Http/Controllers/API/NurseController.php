@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Http\Controllers\Controller;
 use App\Models\Nurse;
 use Illuminate\Http\Request;
@@ -42,7 +44,30 @@ class NurseController extends Controller
      */
     public function update(Request $request, Nurse $nurse)
     {
-        //
+        try {
+            DB::beginTransaction();
+    
+            $user = $nurse->user;
+            $user->update($request->all());
+    
+            $nurse->update($request->all());
+          
+            DB::commit();
+            $nurse->refresh();
+            return response()->json([
+                "status" => "success",
+                "data" => new NurseResource($nurse)
+                
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+    
+            return response()->json([
+                "status" => "error",
+                "message" => "Failed to update user and doctor",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
