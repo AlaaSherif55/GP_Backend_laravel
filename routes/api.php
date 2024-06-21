@@ -22,6 +22,8 @@ Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::
 
 Route::apiResource("doctors",DoctorController::class);
 Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctorPrescriptions"]); 
+Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
+
 Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 

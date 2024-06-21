@@ -122,6 +122,16 @@ class DoctorController extends Controller
         return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
 
     }
+    public function ReplyToDoctorPrescription( Request $request,string $prescription_id ){
+        $prescription = Prescriptions::find($prescription_id);
+        
+        if ($prescription) {
+            $prescription->update(['description' =>$request['description']]);
+            return response()->json(["message" => "your description added successfully"],200);
+        } else {
+            return response()->json(["message" => "prescription not found"], 404);
+        }
+    }
 
 
 }
