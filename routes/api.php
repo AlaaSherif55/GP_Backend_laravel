@@ -2,6 +2,106 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\DoctorController ;
+use App\Http\Controllers\API\NurseController ;
+
+
+use \App\Models\Doctor;
+use \App\Models\Nurse;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+Route::get('hospitals/{hospital}/applications', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'getApplications']);
+Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'updateStatus']);
+Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class,'getAllICUs']);
+Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']);
+Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
+Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class);
+
+Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
+
+Route::apiResource("doctors",DoctorController::class);
+Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctorPrescriptions"]); 
+Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
+
+Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
+Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
+Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
+
+
+Route::apiResource("nurses",NurseController::class);
+Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"]); 
+Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"]); 
+Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"]); 
+
+// Get Doctors
+Route::get('doctors', function (Request $request) {
+    $query = Doctor::query();
+
+    if ($request->has('city') && $request->input('city') !== '')
+    {
+        $query->where('city' ,$request->input('city'));
+    }
+
+    if ($request->has('specialization') && $request->input('specialization') !== '')
+    {
+        $query->where('specialization', $request->input('specialization'));
+    }
+
+    if ($request->has('available') && $request->input('available') !== '')
+    {
+        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+    }
+
+    if ($request->has('fees') && $request->input('fees') !== '')
+    {
+        $query->where('clinic_fees', '<=', $request->input('fees'));
+    }
+    $res = $query->with('user')->paginate(5);
+
+    return response()->json($res);
+});
+
+// get doctor
+Route::get('doctors/{id}', function ($id) {
+    $doctor = Doctor::with('user')->findOrFail($id);
+    return $doctor;
+});
+
+// get Nurses
+Route::get('nurses', function (Request $request) {
+    $query = Nurse::query();
+
+    if ($request->has('city') && $request->input('city') !== '')
+    {
+        $query->where('city' ,$request->input('city'));
+    }
+
+    if ($request->has('available') && $request->input('available') !== '')
+    {
+        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+    }
+
+    if ($request->has('fees') && $request->input('fees') !== '')
+    {
+        $query->where('fees', '<=', $request->input('fees'));
+    }
+    $res = $query->with('user')->paginate(5);
+
+    return response()->json($res);
+});
+
+// get doctor
+Route::get('nurses/{id}', function ($id) {
+    $nurse = Nurse::with('user')->findOrFail($id);
+    return $nurse;
+});
+
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
