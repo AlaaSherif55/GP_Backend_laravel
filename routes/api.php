@@ -73,7 +73,7 @@ Route::get('nurses', function (Request $request) {
 });
 
 // get doctor
-Route::get('doctors/{id}', function ($id) {
+Route::get('nurses/{id}', function ($id) {
     $nurse = Nurse::with('user')->findOrFail($id);
     return $nurse;
 });
