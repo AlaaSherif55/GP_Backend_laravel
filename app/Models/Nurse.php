@@ -9,16 +9,18 @@ class Nurse extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'image',
         'university',
-        'qualifications' ,
-        'city' ,
+        'qualifications',
+        'city',
+        'rate',
         'fees',
+        'image',
         'work_start',
         'work_end',
-        'work_days',
-        
+        'online',
+        'work_days'
     ];
+
     public function user()
     {
         return $this->morphOne(User::class, 'userable');

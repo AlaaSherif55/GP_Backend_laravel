@@ -12,6 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable,HasApiTokens;
 
+
     public function userable() {
         return $this-> morphTo();
     }
