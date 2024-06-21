@@ -4,11 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
+use App\Http\Controllers\API\DoctorRatingsController ;
+use App\Http\Resources\DoctorRatingResource ;
 
-
-use \App\Http\Controllers\API\DoctorController;
 use \App\Models\Doctor;
 use \App\Models\Nurse;
+use \App\Models\DoctorRating;
+use \App\Models\NurseRating;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -27,6 +29,9 @@ Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorA
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
 Route::apiResource("nurses",NurseController::class);
+
+
+
 // Get Doctors
 Route::get('doctors', function (Request $request) {
     $query = Doctor::query();
@@ -57,7 +62,7 @@ Route::get('doctors', function (Request $request) {
 
 // get doctor
 Route::get('doctors/{id}', function ($id) {
-    $doctor = Doctor::with('user')->findOrFail($id);
+    $doctor = Doctor::with('ratings')->with('averageRating')->findOrFail($id);
     return $doctor;
 });
 
@@ -79,13 +84,37 @@ Route::get('nurses', function (Request $request) {
     {
         $query->where('fees', '<=', $request->input('fees'));
     }
-    $res = $query->with('user')->paginate(5);
+    $res = $query->with('user')->with('reviews')->paginate(5);
 
     return response()->json($res);
 });
 
-// get doctor
+// get nurse
 Route::get('nurses/{id}', function ($id) {
-    $nurse = Nurse::with('user')->findOrFail($id);
+    $nurse = Nurse::with('user')->with('ratings')->findOrFail($id);
     return $nurse;
+});
+
+// get doctor reviews
+Route::get('doctors/{id}/reviews', function($id) {
+        $ratings = DoctorRating::with('patient.user')
+        ->where('doctor_id', $id)
+        ->get();
+
+    return response()->json([
+        "status" => "success",
+        "data" => $ratings
+    ]);
+});
+
+// get nurse ratings
+Route::get('nurses/{id}/reviews', function($id) {
+        $ratings = NurseRating::with('patient.user')
+        ->where('nurse_id', $id)
+        ->get();
+
+    return response()->json([
+        "status" => "success",
+        "data" => $ratings
+    ]);
 });
