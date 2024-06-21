@@ -10,10 +10,6 @@ class Doctor extends Model
     use HasFactory;
     
     protected $fillable = [
-        'image', 
-    ];
-
-    protected $fillable = [
         'image', 'university', 'qualifications', 'city', 'address', 'clinic_fees', 'home_fees', 'online', 'specialization', 'visit', 'clinic_work_start', 'clinic_work_end', 'home_work_start', 'home_work_end', 'work_days'
     ];
 
