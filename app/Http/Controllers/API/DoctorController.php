@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\DoctorAppointment;
+use App\Models\Prescriptions;
 
 use Illuminate\Http\Request;
 
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\DoctorAppointmentsResource;
+use App\Http\Resources\PrescriptionsResource;
 
 
 class DoctorController extends Controller
@@ -112,4 +114,24 @@ class DoctorController extends Controller
             return response()->json(["message" => "Appointment not found"], 404);
         }
     }
+    public function getDoctorPrescriptions( string $doctor_id ){
+        $prescriptions = Prescriptions::with(['patient.user'])
+        ->where('doctor_id', $doctor_id)
+        ->get();
+        // return $prescriptions ;
+        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+
+    }
+    public function ReplyToDoctorPrescription( Request $request,string $prescription_id ){
+        $prescription = Prescriptions::find($prescription_id);
+        
+        if ($prescription) {
+            $prescription->update(['description' =>$request['description']]);
+            return response()->json(["message" => "your description added successfully"],200);
+        } else {
+            return response()->json(["message" => "prescription not found"], 404);
+        }
+    }
+
+
 }
