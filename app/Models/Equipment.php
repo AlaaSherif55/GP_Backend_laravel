@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Equipment extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+    ];
 
     public function intensiveCareUnits()
     {

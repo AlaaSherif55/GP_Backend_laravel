@@ -11,7 +11,7 @@ class StoreEquipmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,13 @@ class StoreEquipmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Equipment name is required',
         ];
     }
 }
