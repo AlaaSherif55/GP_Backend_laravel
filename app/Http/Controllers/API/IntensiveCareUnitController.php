@@ -10,6 +10,7 @@ use App\Models\IntensiveCareEquipment;
 use App\Http\Requests\StoreIntensiveCareUnitRequest;
 use App\Http\Requests\UpdateIntensiveCareUnitRequest;
 use App\Http\Resources\IntensiveCareUnitResource;
+use App\Models\Hospital;
 
 
 class IntensiveCareUnitController extends Controller
@@ -17,30 +18,17 @@ class IntensiveCareUnitController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function getHospitalICUs(Request $request, Hospital $hospital)
     {
-        $hospital_id = $request->input('hospital_id');
-        $address = $request->input('address');
+
     
-        $icus = IntensiveCareUnit::with('equipments', 'hospital.user');
+        $icus = IntensiveCareUnit::with('equipments', 'hospital.user')->where('hospital_id', $hospital->id)->get();
     
-        if ($hospital_id) {
-            // Filter by hospital_id
-            $icus = $icus->where('hospital_id', $hospital_id)->get();
-        } else {
-            // Filter by address if provided
-            if ($address) {
-                $icus = $icus->whereHas('hospital', function ($query) use ($address) {
-                    $query->where('address', 'like', '%' . $address . '%');
-                });
-            }
-            // Filter ICUs with capacity greater than 0
-            $icus = $icus->where('capacity', '>', 0)->get();
-        }
     
         return IntensiveCareUnitResource::collection($icus);
     }
-    
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -92,5 +80,21 @@ class IntensiveCareUnitController extends Controller
         $icu->equipments()->detach();
         $icu->delete();
         return response()->json('ICU deleted successfully', 204);
+    }
+
+    public function getAllICUs(Request $request)  {
+        $address = $request->input('address');
+    
+        $icus = IntensiveCareUnit::with('equipments', 'hospital.user');
+    
+            if ($address) {
+                $icus = $icus->whereHas('hospital', function ($query) use ($address) {
+                    $query->where('address', 'like', '%' . $address . '%');
+                });
+            }
+            $icus = $icus->where('capacity', '>', 0)->get();
+        
+    
+        return IntensiveCareUnitResource::collection($icus);
     }
 }
