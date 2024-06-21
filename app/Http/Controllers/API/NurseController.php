@@ -6,9 +6,14 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Nurse;
+use App\Models\NurseAppointment;
+
+
 use Illuminate\Http\Request;
 
 use App\Http\Resources\NurseResource;
+use App\Http\Resources\NurseAppointmentsResource;
+
 
 class NurseController extends Controller
 {
@@ -76,5 +81,13 @@ class NurseController extends Controller
     public function destroy(Nurse $nurse)
     {
         //
+    }
+    public function getNurseAppointments( string $nurse_id ){
+        // $appointments = NurseAppointment::with(['patient.user'])
+        $appointments = NurseAppointment::with("patient")
+        ->where('nurse_id',$nurse_id)
+        ->get();
+        return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
+
     }
 }
