@@ -99,7 +99,7 @@ Route::get('nurses/{id}', function ($id) {
 Route::get('doctors/{id}/reviews', function($id) {
         $ratings = DoctorRating::with('patient.user')
         ->where('doctor_id', $id)
-        ->get();
+        ->paginate(5);
 
     return response()->json([
         "status" => "success",
@@ -111,7 +111,7 @@ Route::get('doctors/{id}/reviews', function($id) {
 Route::get('nurses/{id}/reviews', function($id) {
         $ratings = NurseRating::with('patient.user')
         ->where('nurse_id', $id)
-        ->get();
+        ->paginate(5);
 
     return response()->json([
         "status" => "success",
