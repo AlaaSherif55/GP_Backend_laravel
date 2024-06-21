@@ -6,6 +6,10 @@ use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
 
 
+use \App\Http\Controllers\API\DoctorController;
+use \App\Models\Doctor;
+use \App\Models\Nurse;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -23,3 +27,65 @@ Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorA
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
 Route::apiResource("nurses",NurseController::class);
+// Get Doctors
+Route::get('doctors', function (Request $request) {
+    $query = Doctor::query();
+
+    if ($request->has('city') && $request->input('city') !== '')
+    {
+        $query->where('city' ,$request->input('city'));
+    }
+
+    if ($request->has('specialization') && $request->input('specialization') !== '')
+    {
+        $query->where('specialization', $request->input('specialization'));
+    }
+
+    if ($request->has('available') && $request->input('available') !== '')
+    {
+        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+    }
+
+    if ($request->has('fees') && $request->input('fees') !== '')
+    {
+        $query->where('clinic_fees', '<=', $request->input('fees'));
+    }
+    $res = $query->with('user')->paginate(5);
+
+    return response()->json($res);
+});
+
+// get doctor
+Route::get('doctors/{id}', function ($id) {
+    $doctor = Doctor::with('user')->findOrFail($id);
+    return $doctor;
+});
+
+// get Nurses
+Route::get('nurses', function (Request $request) {
+    $query = Nurse::query();
+
+    if ($request->has('city') && $request->input('city') !== '')
+    {
+        $query->where('city' ,$request->input('city'));
+    }
+
+    if ($request->has('available') && $request->input('available') !== '')
+    {
+        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+    }
+
+    if ($request->has('fees') && $request->input('fees') !== '')
+    {
+        $query->where('fees', '<=', $request->input('fees'));
+    }
+    $res = $query->with('user')->paginate(5);
+
+    return response()->json($res);
+});
+
+// get doctor
+Route::get('nurses/{id}', function ($id) {
+    $nurse = Nurse::with('user')->findOrFail($id);
+    return $nurse;
+});
