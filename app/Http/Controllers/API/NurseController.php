@@ -90,4 +90,23 @@ class NurseController extends Controller
         return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
 
     }
+    public function ApproveNurseAppointments( Request $request,string $appointment_id ){
+        $appointment = NurseAppointment::find($appointment_id);
+        if ($appointment) {
+            $appointment->update(['status' =>$request['status']]);
+            return response()->json(["message" => "Appointment approved successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
+    }
+    public function AddNoteToNurseAppointments( Request $request,string $appointment_id ){
+        $appointment = NurseAppointment::find($appointment_id);
+        
+        if ($appointment) {
+            $appointment->update(['notes' =>$request['notes']]);
+            return response()->json(["message" => "Notes added successfully"],200);
+        } else {
+            return response()->json(["message" => "Appointment not found"], 404);
+        }
+    }
 }
