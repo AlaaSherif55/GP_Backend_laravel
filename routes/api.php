@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
 
+
 use \App\Models\Doctor;
 use \App\Models\Nurse;
 
@@ -96,3 +97,4 @@ Route::get('nurses/{id}', function ($id) {
     $nurse = Nurse::with('user')->findOrFail($id);
     return $nurse;
 });
+
