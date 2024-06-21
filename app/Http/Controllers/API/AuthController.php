@@ -18,6 +18,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use GuzzleHttp\Client;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -32,7 +33,6 @@ class AuthController extends Controller
     public function doctorRegister(StoreDoctorRequest $request){
         try {
             $validatedData = $request->validated();
-            
             $image = null;
             
             if ($request->hasFile('image')) {
@@ -61,6 +61,8 @@ class AuthController extends Controller
             
          
             $user->save(); 
+            event(new Registered($user));
+            $user->sendEmailVerificationNotification(); 
     
           
             $doctor->user()->save($user);
@@ -103,7 +105,8 @@ class AuthController extends Controller
             
          
             $user->save(); 
-    
+            event(new Registered($user));
+            $user->sendEmailVerificationNotification(); 
           
             $patient->user()->save($user);
     
@@ -158,7 +161,8 @@ class AuthController extends Controller
     
          
             $user->save();
-    
+            event(new Registered($user));
+            $user->sendEmailVerificationNotification(); 
    
             $nurse->user()->save($user);
     
