@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Doctor extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'image', 'university', 'qualifications', 'city', 'address', 'clinic_fees', 'home_fees', 'online', 'specialization', 'visit', 'clinic_work_start', 'clinic_work_end', 'home_work_start', 'home_work_end', 'work_days'
     ];
@@ -20,12 +20,12 @@ class Doctor extends Model
 
     public function ratings()
     {
-        return $this->hasMany(DoctorRating::Class);
+        return $this->hasMany(DoctorRating::class);
     }
 
     public function appointments()
     {
-        return $this->hasMany(DoctorAppointment::Class);
+        return $this->hasMany(DoctorAppointment::class);
     }
 
     public function payments()
@@ -37,4 +37,5 @@ class Doctor extends Model
     {
         return $this->ratings()->avg('rating');
     }
+    
 }

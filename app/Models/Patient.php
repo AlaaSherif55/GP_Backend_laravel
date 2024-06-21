@@ -9,6 +9,12 @@ class Patient extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'history',
+        'gender',
+        'birth_date',
+        
+    ];
     public function user()
     {
         return $this->morphOne(User::class, 'userable');
