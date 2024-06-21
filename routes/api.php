@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
+use App\Http\Controllers\API\NurseController ;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -15,3 +17,4 @@ Route::apiResource("doctors",DoctorController::class);
 Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
+Route::apiResource("nurses",NurseController::class);

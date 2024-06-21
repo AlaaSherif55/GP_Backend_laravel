@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Nurse;
 use Illuminate\Http\Request;
 
+use App\Http\Resources\NurseResource;
+
 class NurseController extends Controller
 {
     /**
@@ -13,7 +15,7 @@ class NurseController extends Controller
      */
     public function index()
     {
-        //
+        
     }
 
     /**
@@ -29,7 +31,10 @@ class NurseController extends Controller
      */
     public function show(Nurse $nurse)
     {
-        //
+        $nurse = Nurse::with('user')->findOrFail($nurse->id);
+        return response()->json(["status" => "success", 
+        "data" => new NurseResource($nurse)
+        ]);
     }
 
     /**
