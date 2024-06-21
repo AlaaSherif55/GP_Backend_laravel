@@ -34,7 +34,6 @@ Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorA
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
 
-
 Route::apiResource("nurses",NurseController::class);
 Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"]); 
 Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"]); 
