@@ -106,6 +106,7 @@ Route::get('nurses/{id}', function ($id) {
 Route::post('DoctorRegister', [AuthController::class, 'doctorRegister']);
 Route::post('PatientRegister', [AuthController::class, 'patientRegister']);
 Route::post('NurseRegister', [AuthController::class, 'nurseRegister']);
+Route::post('HospitalRegister', [AuthController::class, 'hospitalRegister']);
 
 // Login
 Route::post('login', [AuthController::class, 'login'] );  //without token
