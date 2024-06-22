@@ -55,9 +55,14 @@ Route::get('doctors', function (Request $request) {
     {
         $query->where('clinic_fees', '<=', $request->input('fees'));
     }
-    $res = $query->with('user')->paginate(5);
+    $doctors = $query->with('user')->paginate(5);
+    
+    $doctors->getCollection()->transform(function ($doctor) {
+    $doctor->average_rating = $doctor->averageRating();
+        return $doctor;
+    });
 
-    return response()->json($res);
+    return response()->json($doctors);
 });
 
 // get doctor
@@ -84,9 +89,13 @@ Route::get('nurses', function (Request $request) {
     {
         $query->where('fees', '<=', $request->input('fees'));
     }
-    $res = $query->with('user')->with('reviews')->paginate(5);
+    $nurses = $query->with('user')->paginate(5);
 
-    return response()->json($res);
+    $nurses->getCollection()->transform(function ($nurse) {
+    $nurse->average_rating = $nurse->averageRating();
+        return $nurse;
+    });
+    return response()->json($nurses);
 });
 
 // get nurse
