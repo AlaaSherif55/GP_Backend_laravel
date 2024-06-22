@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
-
+use App\Http\Controllers\PatientController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -23,3 +23,9 @@ Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorA
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
 Route::apiResource("nurses",NurseController::class);
+
+Route::apiResource("patients", PatientController::class);
+
+Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments']);
+Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments']);
+Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments']);

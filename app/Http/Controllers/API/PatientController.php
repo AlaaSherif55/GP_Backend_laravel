@@ -117,6 +117,35 @@ class PatientController extends Controller
         }
     }
 
+    public function getAllAppointments(Patient $patient)
+    {
+        $appointments = $patient->appointments; // Assuming you have a relationship defined in the Patient model
+        return response()->json($appointments);
+    }
+
+    // Method to get doctor appointments for a patient
+    public function getDoctorAppointments(Patient $patient)
+    {
+        try {
+            $appointments = $patient->doctor_appointments;
+            return response()->json($appointments);
+        }
+        catch(Exception $e) {
+            return response()->json($e->getMessage());
+        } 
+    }
+
+    // Method to get nurse appointments for a patient
+    public function getNurseAppointments(Patient $patient)
+    {
+        try {
+            $appointments = $patient->nurse_appointments;
+            return response()->json($appointments);
+        }
+        catch(Exception $e) {
+            return response()->json($e->getMessage());
+        } 
+    }
     public function payment() {
         
     }
