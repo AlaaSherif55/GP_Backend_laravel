@@ -4,14 +4,17 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDoctorRequest;
+use App\Http\Requests\StoreHospitalRequest;
 use App\Http\Requests\StoreNurseRequest;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\DoctorResource;
+use App\Http\Resources\HospitalResource;
 use App\Http\Resources\PatientRegister;
 use App\Http\Resources\NurseResource;
 use App\Http\Resources\PatientResource;
 use App\Models\Doctor;
+use App\Models\Hospital;
 use App\Models\Nurse;
 use App\Models\Patient;
 use App\Models\User;
@@ -184,6 +187,47 @@ class AuthController extends Controller
         }
     }
     
+    public function hospitalRegister(StoreHospitalRequest $request){
+        try {
+            $validatedData = $request->validated();
+            
+            $hospital = Hospital::create([
+                'address' => $validatedData['address'],
+            ]);
+    
+            $user = new User([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => bcrypt($validatedData['password']),
+                'phone' => $validatedData['phone'],
+                'role' => 'hospital', 
+            ]);
+            
+         
+            $user->save(); 
+            event(new Registered($user));
+            $user->sendEmailVerificationNotification(); 
+    
+          
+            $hospital->user()->save($user);
+    
+
+            $token = $user->createToken("API TOKEN")->plainTextToken;
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Hospital created successfully',
+                'token' => $token
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to register Hospital',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function uploadFileToCloudinary($request, $field){
         $fileUrl = '';
         
@@ -283,30 +327,37 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
             ];
         }
+        elseif ($user->role == "hospital") {
+            $hospital = Hospital::find($user->userable_id);
+            return [
+                'token' => $token,
+                'user' => new HospitalResource($hospital),
+            ];
+        }
         elseif ($user->role == "nurse") {
-            $employer = Nurse::find($user->userable_id);
-            if ($employer) {
+            $nurse = Nurse::find($user->userable_id);
+            if ( $nurse) {
                 return [
                     'token' => $token,
-                    'user' => new NurseResource($employer),
+                    'user' => new NurseResource($nurse),
                 ];
             } 
         } 
         elseif ($user->role == "doctor") {
-            $candidate = Doctor::find($user->userable_id);
-            if ($candidate) {
+            $doctor = Doctor::find($user->userable_id);
+            if ($doctor) {
                 return [
                     'token' => $token,
-                    'user' => new DoctorResource($candidate),
+                    'user' => new DoctorResource($doctor),
                 ];
             }
         }
         elseif ($user->role == "patient") {
-            $candidate = Patient::find($user->userable_id);
-            if ($candidate) {
+            $patient = Patient::find($user->userable_id);
+            if ($patient) {
                 return [
                     'token' => $token,
-                    'user' => new PatientResource($candidate),
+                    'user' => new PatientResource($patient),
                 ];
             }
         }
