@@ -48,7 +48,16 @@ Route::get('doctors', function (Request $request) {
 
     if ($request->has('available') && $request->input('available') !== '')
     {
-        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+        if (strpos($request->input('available'), ',') !== false) 
+        {
+            $days = explode(',', $request->input('available'));
+            $query->where('work_days', 'like', '%'.$days[0].'%');
+            $query->OrWhere('work_days', 'like', '%'.$days[1].'%');
+        }
+        else 
+        {
+            $query->where('work_days', 'like', '%'.$request->input('available').'%');
+        }
     }
 
     if ($request->has('fees') && $request->input('fees') !== '')
@@ -82,7 +91,16 @@ Route::get('nurses', function (Request $request) {
 
     if ($request->has('available') && $request->input('available') !== '')
     {
-        $query->where('work_days', 'like', '%'.$request->input('available').'%');
+        if (strpos($request->input('available'), ',') !== false) 
+        {
+            $days = explode(',', $request->input('available'));
+            $query->where('work_days', 'like', '%'.$days[0].'%');
+            $query->OrWhere('work_days', 'like', '%'.$days[1].'%');
+        }
+        else 
+        {
+            $query->where('work_days', 'like', '%'.$request->input('available').'%');
+        }
     }
 
     if ($request->has('fees') && $request->input('fees') !== '')
