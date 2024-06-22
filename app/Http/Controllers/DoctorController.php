@@ -13,7 +13,8 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        //
+        $doctors = Doctor::get();
+        return response()->json(["status" => "success", "data" => DoctorResource::collection($employers)]);
     }
 
     /**
