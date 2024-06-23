@@ -78,6 +78,10 @@ Route::get('doctors', function (Request $request) {
         $query->where('clinic_fees', '<=', $request->input('fees'));
     }
 
+    if ($request->has('visit'))
+    {
+        $query->where('visit', $request->input('visit'));
+    }
     if ($request->has('name') && $request->input('name') !== '') 
     {
         $name = $request->input('name');
