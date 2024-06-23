@@ -22,7 +22,11 @@ class UpdatePatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'nullable|string|max:255',
+            'history' => 'nullable|string',
+            'phone' => 'required|string|max:15|min:7',
+            'birth_date' => 'required|date',
+            'gender' => 'required|string|in:m,f',
         ];
     }
 }

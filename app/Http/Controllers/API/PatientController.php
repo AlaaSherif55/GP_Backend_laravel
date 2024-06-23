@@ -1,14 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDoctorAppointmentRequest;
 use App\Http\Requests\StoreNurseAppointmentRequest;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Http\Resources\PatientResource;
 use App\Models\DoctorAppointment;
 use App\Models\Patient;
+use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
@@ -19,7 +24,7 @@ class PatientController extends Controller
     {
         try {
             $patients = Patient::all();
-            return response()->json($patients);
+            return response()->json(PatientResource::collection($patients));
         }
         catch(Exception $e) {
             return response()->json($e->getMessage());
@@ -41,7 +46,7 @@ class PatientController extends Controller
     {
         try {
             $patient = Patient::findOrFail($patient->id);
-            return response()->json($patient);
+            return response()->json(PatientResource::make($patient));
         }
         catch(Exception $e) {
             return response()->json($e->getMessage());
@@ -53,7 +58,25 @@ class PatientController extends Controller
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $updatedPatient = Patient::findOrFail($patient->id);
+            $updatedUser = User::findOrFail($updatedPatient->user->id);
+
+            $updatedPatient->update($request->all());
+            $updatedUser->update($request->all());
+
+            $updatedPatient->save();
+            $updatedUser->save();
+            
+            $updatedPatient->refresh();
+            DB::commit();
+            return response()->json(PatientResource::make($updatedPatient));
+        }
+        catch(Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage());
+        }
     }
 
     /**
@@ -117,16 +140,36 @@ class PatientController extends Controller
         }
     }
 
-    public function getAllAppointments(Patient $patient)
+    public function getAllAppointments(Patient $patient, Request $request)
     {
-        $appointments = $patient->appointments; // Assuming you have a relationship defined in the Patient model
-        return response()->json($appointments);
+        try {
+            $patient = Patient::findOrFail($patient->id);
+            $query = $request->all();
+            $doctorAppointments = json_decode($patient->doctor_appointments, true);
+            $nurseAppointments = json_decode($patient->nurse_appointments, true);
+
+            $appointments = array_merge($doctorAppointments, $nurseAppointments);
+            $totalLength = count($appointments);
+            $appointments = array_slice(
+                $appointments, 
+                $query['page'] * $query['rowsPerPage'],
+                $query['rowsPerPage'],
+            );
+            return response()->json([
+                'appointments' => $appointments,
+                'total' => $totalLength
+            ]);
+        }
+        catch(Exception $e) {
+            return response()->json($e->getMessage());
+        }
     }
 
     // Method to get doctor appointments for a patient
     public function getDoctorAppointments(Patient $patient)
     {
         try {
+            $patient = Patient::findOrFail($patient->id);
             $appointments = $patient->doctor_appointments;
             return response()->json($appointments);
         }
@@ -139,6 +182,7 @@ class PatientController extends Controller
     public function getNurseAppointments(Patient $patient)
     {
         try {
+            $patient = Patient::findOrFail($patient->id);
             $appointments = $patient->nurse_appointments;
             return response()->json($appointments);
         }

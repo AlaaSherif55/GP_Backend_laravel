@@ -5,13 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
 use App\Http\Controllers\API\AuthController;
-use App\Models\User;
+use App\Http\Controllers\API\PatientController;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use App\Models\User;
 use \App\Models\Doctor;
-use \App\Models\Nurse;use App\Http\Controllers\PatientController;
+use \App\Models\Nurse;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
