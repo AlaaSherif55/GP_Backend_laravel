@@ -26,14 +26,14 @@ class NurseResource extends JsonResource
             'image'=>$this->image,
             'university'=>$this->university,
             'qualifications'=>$this->qualifications,
-            'city'=>$this->city,
-            'fees'=>$this->fees,
-            'online'=>$this->online,
-            'work_start'=>$this->work_start,
-            'work_end'=>$this->work_end,
-            'work_days'=>$this->work_days,
-            'rate'=>$this->rate
-
+            'city'=> $this->city , 
+            'fees'=> $this->fees , 
+            'online'=> $this->online , 
+            'work_start'=> $this->work_start , 
+            'work_end'=> $this-> work_end, 
+            'work_days'=> $this-> work_days, 
+            'rate'=>$this->rate,
+            'average_rating'=>$this->averageRating(),
         ];
     }
 }

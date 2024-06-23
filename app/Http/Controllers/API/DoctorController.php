@@ -10,6 +10,9 @@ use App\Models\Doctor;
 use App\Models\DoctorAppointment;
 use App\Models\Prescriptions;
 
+use App\Http\Controllers\API\AuthController;
+
+
 use Illuminate\Http\Request;
 
 use App\Http\Resources\DoctorResource;
@@ -56,9 +59,14 @@ class DoctorController extends Controller
     
             $user = $doctor->user;
             $user->update($request->all());
-    
+                
+            
             $doctor->update($request->all());
-          
+            if (!empty($request['image'])) {
+                $doctor->image = app('App\Http\Controllers\API\AuthController')->uploadFileToCloudinary($request, 'image');
+                $doctor->save();
+            }
+           
             DB::commit();
             $doctor->refresh();
             return response()->json([
