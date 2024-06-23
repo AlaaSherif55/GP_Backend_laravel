@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDoctorAppointmentRequest;
 use App\Http\Requests\StoreNurseAppointmentRequest;
 use App\Http\Requests\StorePatientRequest;
+use App\Http\Requests\StorePrescriptionsRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Resources\PatientResource;
+use App\Http\Resources\PrescriptionsResource;
+use App\Models\Doctor;
 use App\Models\DoctorAppointment;
 use App\Models\Patient;
+use App\Models\Prescriptions;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -155,6 +159,27 @@ class PatientController extends Controller
                 $query['page'] * $query['rowsPerPage'],
                 $query['rowsPerPage'],
             );
+
+                // Extract all doctor and nurse IDs
+            $doctorIds = array_column($appointments, 'doctor_id');
+            $nurseIds = array_column($appointments, 'nurse_id');
+            
+            // Combine the IDs and remove duplicates
+            $userIds = array_unique(array_merge($doctorIds, $nurseIds));
+
+            // Fetch the users with these IDs
+            $users = User::whereIn('id', $userIds)->pluck('name', 'id');
+
+            // Map the user names back to the appointments
+            foreach ($appointments as &$appointment) {
+                if (isset($appointment['doctor_id'])) {
+                    $appointment['doctor_name'] = $users[$appointment['doctor_id']] ?? 'Unknown Doctor';
+                }
+                if (isset($appointment['nurse_id'])) {
+                    $appointment['nurse_name'] = $users[$appointment['nurse_id']] ?? 'Unknown Nurse';
+                }
+            }
+            
             return response()->json([
                 'appointments' => $appointments,
                 'total' => $totalLength
@@ -190,6 +215,39 @@ class PatientController extends Controller
             return response()->json($e->getMessage());
         } 
     }
+
+    public function getPrescriptions(Patient $patient) {
+        try {
+            return response()->json(PrescriptionsResource::collection($patient->prescriptions));
+        }
+        catch(Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
+    public function uploadPrescription(Patient $patient, StorePrescriptionsRequest $request) {
+        try {
+            DB::beginTransaction();
+            $data = $request->all();
+
+            $doctor = Doctor::findOrFail($data['doctor_id']);
+
+            $prescription = new Prescriptions();
+            $prescription->prescription_image = app('App\Http\Controllers\API\AuthController')->uploadFileToCloudinary($request, 'prescription_image');
+            $prescription->patient_id = $patient->id;
+            $prescription->doctor_id = $doctor->id;
+            $prescription->description = $data['description'];
+
+            $prescription->save();
+            DB::commit();
+            return response()->json(PrescriptionsResource::make($prescription));
+        }
+        catch(Exception $e) {
+            DB::rollback();
+            return response()->json($e->getMessage());
+        }
+    }
+
     public function payment() {
         
     }

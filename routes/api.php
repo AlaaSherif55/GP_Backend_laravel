@@ -264,3 +264,5 @@ Route::apiResource("patients", PatientController::class);
 Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments']);
 Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments']);
 Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments']);
+Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription']);
+Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions']);
