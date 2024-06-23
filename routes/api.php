@@ -64,6 +64,15 @@ Route::get('doctors', function (Request $request) {
     {
         $query->where('clinic_fees', '<=', $request->input('fees'));
     }
+
+    if ($request->has('name') && $request->input('name') !== '') 
+    {
+        $name = $request->input('name');
+        $query->whereHas('user', function ($q) use ($name) {
+            $q->where('name', 'like', '%' . $name . '%');
+        });
+    }
+
     $doctors = $query->with('user')->paginate(5);
     
     $doctors->getCollection()->transform(function ($doctor) {
@@ -107,7 +116,18 @@ Route::get('nurses', function (Request $request) {
     {
         $query->where('fees', '<=', $request->input('fees'));
     }
+
+
+    if ($request->has('name') && $request->input('name') !== '') 
+    {
+        $name = $request->input('name');
+        $query->whereHas('user', function ($q) use ($name) {
+            $q->where('name', 'like', '%' . $name . '%');
+        });
+    }
+
     $nurses = $query->with('user')->paginate(5);
+
 
     $nurses->getCollection()->transform(function ($nurse) {
     $nurse->average_rating = $nurse->averageRating();
