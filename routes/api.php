@@ -5,11 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DoctorController ;
 use App\Http\Controllers\API\NurseController ;
 use App\Http\Controllers\API\AuthController;
-use App\Models\User;
+use App\Http\Controllers\API\PatientController;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use App\Models\User;
 use \App\Models\Doctor;
 use \App\Models\Nurse;
 
@@ -181,3 +182,9 @@ Route::post('/reset-password', function (Request $request) {
         ? response()->json(['status', __($status)])
         : response()->json(['error' => [__($status)]]);
 })->middleware('guest')->name('password.update');
+
+Route::apiResource("patients", PatientController::class);
+
+Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments']);
+Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments']);
+Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments']);
