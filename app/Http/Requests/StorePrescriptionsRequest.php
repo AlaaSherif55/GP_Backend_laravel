@@ -24,7 +24,7 @@ class StorePrescriptionsRequest extends FormRequest
         return [
             'doctor_id' => 'required',
             'prescription_image' => 'required',
-            'description' => 'required',
+           // 'description' => 'required',
         ];
     }
 }
