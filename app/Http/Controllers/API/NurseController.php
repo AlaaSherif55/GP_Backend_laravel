@@ -56,6 +56,11 @@ class NurseController extends Controller
             $user->update($request->all());
     
             $nurse->update($request->all());
+            if (!empty($request['image'])) {
+                $nurse->image = app('App\Http\Controllers\API\AuthController')->uploadFileToCloudinary($request, 'image');
+                $nurse->save();
+            }
+           
           
             DB::commit();
             $nurse->refresh();
