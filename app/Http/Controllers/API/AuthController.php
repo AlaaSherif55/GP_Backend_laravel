@@ -405,11 +405,11 @@ class AuthController extends Controller
             }
         }
         elseif ($user->role == "hospital") {
-            $Nurse = Nurse::find($user->userable_id);
-            if ($Nurse) {
+            $hospital = Hospital::find($user->userable_id);
+            if ($hospital) {
                 return [
 
-                    'user' => new HospitalResource($Nurse),
+                    'user' => new HospitalResource($hospital),
                 ];
             }
         }
