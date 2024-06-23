@@ -130,6 +130,23 @@ class DoctorController extends Controller
         return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
 
     }
+    public function getReadPrescriptions(string $doctor_id) {
+        $prescriptions = Prescriptions::with(['patient.user'])
+            ->where('doctor_id', $doctor_id)
+            ->where('read', 1)
+            ->get();
+    
+        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+    }
+    public function getUnreadPrescriptions(string $doctor_id) {
+        $prescriptions = Prescriptions::with(['patient.user'])
+            ->where('doctor_id', $doctor_id)
+            ->where('read', 0)
+            ->get();
+    
+        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+    }
+    
     public function ReplyToDoctorPrescription( Request $request,string $prescription_id ){
         $prescription = Prescriptions::find($prescription_id);
         
