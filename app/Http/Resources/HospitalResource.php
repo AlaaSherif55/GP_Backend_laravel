@@ -15,12 +15,16 @@ class HospitalResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id'=>$this->id,
             'address' => $this->address,
+            'userId' => $this->user->id,
             'user' => $this->whenLoaded('user', function () {
-                return [    
+                return [  
+                    'userId' => $this->user->id,
                     'name' => $this->user->name,
                     'phone' => $this->user->phone,
                     'email' => $this->user->email,  
+                    'role' => $this->user->role,  
                 ];
             })
         ];
