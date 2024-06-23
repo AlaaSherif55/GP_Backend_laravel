@@ -236,7 +236,6 @@ class PatientController extends Controller
             $prescription->prescription_image = app('App\Http\Controllers\API\AuthController')->uploadFileToCloudinary($request, 'prescription_image');
             $prescription->patient_id = $patient->id;
             $prescription->doctor_id = $doctor->id;
-            $prescription->description = $data['description'];
 
             $prescription->save();
             DB::commit();
