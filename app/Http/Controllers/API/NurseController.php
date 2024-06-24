@@ -22,12 +22,14 @@ class NurseController extends Controller
      */
     public function index()
     {
+        $nurses = Nurse::with('user')->get();
         
+        return response()->json([
+            "status" => "success",
+            "data" => NurseResource::collection($nurses)
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
@@ -114,4 +116,14 @@ class NurseController extends Controller
             return response()->json(["message" => "Appointment not found"], 404);
         }
     }
+    public function VerifyNurse( Request $request,string $nurse_id ){
+        $nurse = Nurse::find($nurse_id);
+        if ($nurse) {
+            $nurse->update(['verification_status' =>$request['verification_status']]);
+            return response()->json(["message" => "Nurse Verified successfully"],200);
+        } else {
+            return response()->json(["message" => "Nurse not found"], 404);
+        }
+    }
+
 }
