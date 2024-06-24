@@ -49,4 +49,9 @@ class HospitalController extends Controller
     {
         //
     }
+    public function updateVerificationStatus(Request $request, Hospital $hospital){
+        $status = $request['status'] ;
+        $hospital->update(['verification_status' => $status]);
+        return response()->json(["message" => "status updated successfully"],200);
+    }
 }
