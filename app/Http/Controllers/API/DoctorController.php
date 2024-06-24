@@ -27,9 +27,13 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $doctors = Doctor::with('user')->get();
 
+        return response()->json([
+            "status" => "success",
+            "data" => DoctorResource::collection($doctors)
+        ]);
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -174,6 +178,15 @@ class DoctorController extends Controller
             return response()->json(["message" => "your description added successfully"],200);
         } else {
             return response()->json(["message" => "prescription not found"], 404);
+        }
+    }
+    public function VerifyDoctor( Request $request,string $doctor_id ){
+        $doctor = Doctor::find($doctor_id);
+        if ($doctor) {
+            $doctor->update(['verification_status' =>$request['verification_status']]);
+            return response()->json(["message" => "Doctor Verified successfully"],200);
+        } else {
+            return response()->json(["message" => "Doctor not found"], 404);
         }
     }
 

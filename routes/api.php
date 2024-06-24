@@ -37,6 +37,7 @@ Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctor
 Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"]); 
 Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"]); 
 Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
+Route::patch("/doctors/{doctor}/verify",[DoctorController::class,"VerifyDoctor"]); 
 
 Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
