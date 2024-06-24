@@ -161,8 +161,7 @@ class PatientController extends Controller
                                          ->with('doctor.user') // Ensure doctor and associated user data are loaded
                                          ->get()
                                          ->map(function ($appointment) {
-                                             // Add doctor's name to the appointment
-                                             $appointment->doctor_name = $appointment->doctor->user->name ?? 'Unknown';
+                                             $appointment->name = $appointment->doctor->user->name ?? 'Unknown';
                                              return $appointment;
                                          });
     
@@ -172,7 +171,7 @@ class PatientController extends Controller
                                          ->with('nurse.user')
                                          ->get()
                                          ->map(function ($appointment) {
-                                             $appointment->nurse_name = $appointment->nurse->user->name ?? 'Unknown';
+                                             $appointment->name = $appointment->nurse->user->name ?? 'Unknown';
                                              return $appointment;
                                          });
     
