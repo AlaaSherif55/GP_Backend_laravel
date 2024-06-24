@@ -94,6 +94,8 @@ Route::get('doctors', function (Request $request) {
         });
     }
 
+    $query->where('verification_status', 'accepted');
+
     $doctors = $query->with('user')->paginate(5);
     
     $doctors->getCollection()->transform(function ($doctor) {
@@ -146,6 +148,8 @@ Route::get('nurses', function (Request $request) {
             $q->where('name', 'like', '%' . $name . '%');
         });
     }
+
+    $query->where('verification_status', 'accepted');
 
     $nurses = $query->with('user')->paginate(5);
 
