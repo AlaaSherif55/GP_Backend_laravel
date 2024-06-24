@@ -16,6 +16,7 @@ class HospitalResource extends JsonResource
     {
         return [
             'address' => $this->address,
+            'verification_status' => $this->verification_status,
             'user' => $this->whenLoaded('user', function () {
                 return [    
                     'name' => $this->user->name,
