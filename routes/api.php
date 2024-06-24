@@ -96,12 +96,23 @@ Route::get('doctors', function (Request $request) {
 
     $query->where('verification_status', 'accepted');
 
+    $query->leftJoinSub(
+            'SELECT doctor_id, AVG(rating) as average_rating FROM doctor_ratings GROUP BY doctor_id',
+            'ratings',
+            'doctors.id',
+            '=',
+            'ratings.doctor_id'
+        )
+        ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $doctors = $query->with('user')->paginate(5);
     
     $doctors->getCollection()->transform(function ($doctor) {
     $doctor->average_rating = $doctor->averageRating();
         return $doctor;
     });
+
+
 
     return response()->json($doctors);
 });
@@ -151,6 +162,15 @@ Route::get('nurses', function (Request $request) {
 
     $query->where('verification_status', 'accepted');
 
+    $query->leftJoinSub(
+        'SELECT nurse_id, AVG(rating) as average_rating FROM nurse_ratings GROUP BY nurse_id',
+        'ratings',
+        'nurses.id',
+        '=',
+        'ratings.nurse_id'
+    )
+    ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $nurses = $query->with('user')->paginate(5);
 
 
@@ -190,6 +210,9 @@ Route::get('nurses/{id}/reviews', function($id) {
         "data" => $ratings
     ]);
 });
+
+// get top doctors
+Route::get('doctors/top-doctors', [DoctorController::class, 'getTopDoctors']);
 
 // Registeration
 Route::post('DoctorRegister', [AuthController::class, 'doctorRegister']);
