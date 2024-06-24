@@ -14,7 +14,8 @@ class HospitalController extends Controller
      */
     public function index()
     {
-        //
+        $hospitals = Hospital::with('user')->get();
+        return response()->json(HospitalResource::collection($hospitals));
     }
 
     /**
