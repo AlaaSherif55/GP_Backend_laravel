@@ -58,11 +58,33 @@ class IntensiveCareApplicationController extends Controller
     {
         //
     }
-    public function getApplications(Request $request, Hospital $hospital)  {
-        $ICUapplications = $hospital->units()->with(['applications.intensiveCareUnit.equipments'])->get()->pluck('applications')->flatten();
-        return response()->json($ICUapplications); 
-        
+    public function getApplications(Request $request, Hospital $hospital) {
+        $perPage = $request->input('per_page', 5); // Default to 10 items per page if not provided
+        $page = $request->input('page', 1);
+        $status = $request->input('status', 'pending'); // Default to 'pending' status if not provided
+    
+        $ICUapplications = $hospital->units()
+                                    ->with(['applications.intensiveCareUnit.equipments'])
+                                    ->get()
+                                    ->pluck('applications')
+                                    ->flatten()
+                                    ->filter(function ($application) use ($status) {
+                                        return $application->status === $status;
+                                    })
+                                    ->values();
+    
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $ICUapplications->forPage($page, $perPage),
+            $ICUapplications->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+    
+        return response()->json($paginated);
     }
+    
+    
     public function updateStatus(Request $request, IntensiveCareApplication $application)
     {
         // Validate the request
