@@ -92,16 +92,35 @@ class DoctorController extends Controller
     {
         //
     }
-    public function getDoctorAppointments( string $doctor_id ){
-        // $perPage = request()->query('perPage', 7);
-        $doctor = new DoctorResource(Doctor::find($doctor_id));
-        // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
-        $appointments = DoctorAppointment::with(['patient.user'])
-        ->where('doctor_id', $doctor_id)
-        ->get();
-        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
+    // public function getDoctorAppointments( string $doctor_id ){
+    //     // $perPage = request()->query('perPage', 7);
+    //     // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
+    //     $appointments = DoctorAppointment::with(['patient.user'])
+    //     ->where('doctor_id', $doctor_id)
+    //     ->get();
+    //     return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
 
+    // }
+    public function getDoctorAppointments(string $doctor_id){
+        $kindOfVisit = request()->query('kind_of_visit');
+        $date = request()->query('date');
+
+        $query = DoctorAppointment::with(['patient.user'])
+            ->where('doctor_id', $doctor_id);
+
+        if ($kindOfVisit !== "all") {
+            $query->where('kind_of_visit', $kindOfVisit);
+        }
+
+        if ($date) {
+            $query->whereDate('date', $date);
+        }
+
+        $appointments = $query->get();
+
+        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
     }
+
     public function ApproveDoctorAppointments( Request $request,string $appointment_id ){
         $appointment = DoctorAppointment::find($appointment_id);
         
