@@ -20,14 +20,14 @@ class IntensiveCareUnitController extends Controller
      */
     public function getHospitalICUs(Request $request, Hospital $hospital)
     {
-
+        $itemsPerPage = $request->query('itemsPerPage', 5); 
+        $icus = IntensiveCareUnit::with('equipments', 'hospital.user')
+                    ->where('hospital_id', $hospital->id)
+                    ->paginate($itemsPerPage);
     
-        $icus = IntensiveCareUnit::with('equipments', 'hospital.user')->where('hospital_id', $hospital->id)->get();
-    
-    
-        return IntensiveCareUnitResource::collection($icus);
+        return $icus;
     }
-
+    
 
 
     /**
@@ -82,19 +82,31 @@ class IntensiveCareUnitController extends Controller
         return response()->json('ICU deleted successfully', 204);
     }
 
-    public function getAllICUs(Request $request)  {
+    public function getAllICUs(Request $request) {
         $address = $request->input('address');
+        $page = $request->input('page', 1); 
+        $itemsPerPage = $request->input('itemsPerPage', 5); 
     
         $icus = IntensiveCareUnit::with('equipments', 'hospital.user');
     
-            if ($address) {
-                $icus = $icus->whereHas('hospital', function ($query) use ($address) {
-                    $query->where('address', 'like', '%' . $address . '%');
-                });
-            }
-            $icus = $icus->where('capacity', '>', 0)->get();
-        
+        if ($address) {
+            $icus = $icus->whereHas('hospital', function ($query) use ($address) {
+                $query->where('address', 'like', '%' . $address . '%');
+            });
+        }
     
-        return IntensiveCareUnitResource::collection($icus);
+        $icus = $icus->where('capacity', '>', 0);
+    
+        // Pagination
+        $totalICUs = $icus->count();
+        $icus = $icus->skip(($page - 1) * $itemsPerPage)->take($itemsPerPage)->get();
+    
+        return response()->json([
+            'data' => IntensiveCareUnitResource::collection($icus),
+            'current_page' => (int) $page,
+            'per_page' => (int) $itemsPerPage,
+            'total' => (int) $totalICUs,
+            'last_page' => (int) ceil($totalICUs / $itemsPerPage),
+        ]);
     }
 }

@@ -24,7 +24,7 @@ class EquipmentController extends Controller
     {
         $data = $request->validated();
         $equipment = Equipment::create($data);
-        return response()->json(' Equipment added successfully', 201);
+        return response()->json($equipment, 201);
 
 
 
