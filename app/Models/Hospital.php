@@ -10,6 +10,7 @@ class Hospital extends Model
     use HasFactory;
     protected $fillable = [
         'address',
+        'verification_status',
     ];
 
     public function user()

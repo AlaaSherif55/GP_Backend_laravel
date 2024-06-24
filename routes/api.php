@@ -29,7 +29,9 @@ Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class
 Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']); //hospital
 Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
 Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class); //any
-
+Route::get('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'show']); //hospital
+Route::get('/hospital', [\App\Http\Controllers\API\HospitalController::class, 'index']); //admin
+Route::put('hospital/{hospital}/verification', [\App\Http\Controllers\API\HospitalController::class, 'updateVerificationStatus']); //admin
 Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
 
 Route::apiResource("doctors",DoctorController::class);
@@ -37,6 +39,7 @@ Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctor
 Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"]); 
 Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"]); 
 Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
+Route::patch("/doctors/{doctor}/verify",[DoctorController::class,"VerifyDoctor"]); 
 
 Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
@@ -46,6 +49,7 @@ Route::apiResource("nurses",NurseController::class);
 Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"]); 
 Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"]); 
 Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"]); 
+Route::patch("/nurses/{nurse}/verify",[NurseController::class,"VerifyNurse"]); 
 
 // Get Doctors
 Route::get('doctors', function (Request $request) {
@@ -92,12 +96,25 @@ Route::get('doctors', function (Request $request) {
         });
     }
 
+    $query->where('verification_status', 'accepted');
+
+    $query->leftJoinSub(
+            'SELECT doctor_id, AVG(rating) as average_rating FROM doctor_ratings GROUP BY doctor_id',
+            'ratings',
+            'doctors.id',
+            '=',
+            'ratings.doctor_id'
+        )
+        ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $doctors = $query->with('user')->paginate(5);
     
     $doctors->getCollection()->transform(function ($doctor) {
     $doctor->average_rating = $doctor->averageRating();
         return $doctor;
     });
+
+
 
     return response()->json($doctors);
 });
@@ -145,6 +162,17 @@ Route::get('nurses', function (Request $request) {
         });
     }
 
+    $query->where('verification_status', 'accepted');
+
+    $query->leftJoinSub(
+        'SELECT nurse_id, AVG(rating) as average_rating FROM nurse_ratings GROUP BY nurse_id',
+        'ratings',
+        'nurses.id',
+        '=',
+        'ratings.nurse_id'
+    )
+    ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $nurses = $query->with('user')->paginate(5);
 
 
@@ -184,6 +212,9 @@ Route::get('nurses/{id}/reviews', function($id) {
         "data" => $ratings
     ]);
 });
+
+// get top doctors
+Route::get('doctors/top-doctors', [DoctorController::class, 'getTopDoctors']);
 
 // Registeration
 Route::post('DoctorRegister', [AuthController::class, 'doctorRegister']);

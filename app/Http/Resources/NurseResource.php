@@ -34,6 +34,7 @@ class NurseResource extends JsonResource
             'work_days'=> $this-> work_days, 
             'rate'=>$this->rate,
             'average_rating'=>$this->averageRating(),
+            'verification_status'=>$this->verification_status,
         ];
     }
 }

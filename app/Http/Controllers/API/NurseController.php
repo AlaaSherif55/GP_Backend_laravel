@@ -22,12 +22,14 @@ class NurseController extends Controller
      */
     public function index()
     {
+        $nurses = Nurse::with('user')->get();
         
+        return response()->json([
+            "status" => "success",
+            "data" => NurseResource::collection($nurses)
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
@@ -87,13 +89,33 @@ class NurseController extends Controller
     {
         //
     }
-    public function getNurseAppointments( string $nurse_id ){
-        // $appointments = NurseAppointment::with(['patient.user'])
-        $appointments = NurseAppointment::with("patient")
-        ->where('nurse_id',$nurse_id)
-        ->get();
-        return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
+    // public function getNurseAppointments( string $nurse_id )
+    // {
+    //     // $appointments = NurseAppointment::with(['patient.user'])
+    //     $appointments = NurseAppointment::with("patient")
+    //     ->where('nurse_id',$nurse_id)
+    //     ->get();
+    //     return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
 
+    // }
+    public function getNurseAppointments( string $nurse_id ){
+        $status = request()->query('status');
+        $date = request()->query('date');
+
+        $query = NurseAppointment::with(['patient.user'])
+            ->where('nurse_id',$nurse_id);
+
+        if ($status && $status !== "all") {
+            $query->where('status', $status);
+        }
+
+        if ($date) {
+            $query->whereDate('date', $date);
+        }
+
+        $appointments = $query->get();
+
+        return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
     }
     public function ApproveNurseAppointments( Request $request,string $appointment_id ){
         $appointment = NurseAppointment::find($appointment_id);
@@ -114,4 +136,14 @@ class NurseController extends Controller
             return response()->json(["message" => "Appointment not found"], 404);
         }
     }
+    public function VerifyNurse( Request $request,string $nurse_id ){
+        $nurse = Nurse::find($nurse_id);
+        if ($nurse) {
+            $nurse->update(['verification_status' =>$request['verification_status']]);
+            return response()->json(["message" => "Nurse Verified successfully"],200);
+        } else {
+            return response()->json(["message" => "Nurse not found"], 404);
+        }
+    }
+
 }
