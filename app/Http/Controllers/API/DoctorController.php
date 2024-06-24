@@ -27,9 +27,13 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $doctors = Doctor::with('user')->get();
 
+        return response()->json([
+            "status" => "success",
+            "data" => DoctorResource::collection($doctors)
+        ]);
+    }
     /**
      * Store a newly created resource in storage.
      */
