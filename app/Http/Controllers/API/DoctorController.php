@@ -151,7 +151,7 @@ class DoctorController extends Controller
         $prescription = Prescriptions::find($prescription_id);
         
         if ($prescription) {
-            $prescription->update(['description' =>$request['description']]);
+            $prescription->update(['description' =>$request['description'] , 'read' => 1]);
             return response()->json(["message" => "your description added successfully"],200);
         } else {
             return response()->json(["message" => "prescription not found"], 404);
