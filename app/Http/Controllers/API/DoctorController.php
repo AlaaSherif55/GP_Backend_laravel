@@ -176,6 +176,15 @@ class DoctorController extends Controller
             return response()->json(["message" => "prescription not found"], 404);
         }
     }
+    public function VerifyDoctor( Request $request,string $doctor_id ){
+        $doctor = Doctor::find($doctor_id);
+        if ($doctor) {
+            $doctor->update(['verification_status' =>$request['verification_status']]);
+            return response()->json(["message" => "Doctor Verified successfully"],200);
+        } else {
+            return response()->json(["message" => "Doctor not found"], 404);
+        }
+    }
 
 
 }
