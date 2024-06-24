@@ -46,6 +46,7 @@ Route::apiResource("nurses",NurseController::class);
 Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"]); 
 Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"]); 
 Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"]); 
+Route::patch("/nurses/{nurse}/verify",[NurseController::class,"VerifyNurse"]); 
 
 // Get Doctors
 Route::get('doctors', function (Request $request) {
