@@ -21,6 +21,7 @@ class DoctorAppointmentsResource extends JsonResource
             "doctor_id"=> $this->doctor_id,
             "kind_of_visit"=> $this->kind_of_visit,
             "day"=> $this->day,
+            "date"=> $this->date,
             "status"=>$this->status,
             "notes"=> $this->notes,
             "patient_history"=>$this->patient->history,

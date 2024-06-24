@@ -18,7 +18,8 @@ class Nurse extends Model
         'work_start',
         'work_end',
         'online',
-        'work_days'
+        'work_days',
+        'verification_status'
     ];
 
     public function user()

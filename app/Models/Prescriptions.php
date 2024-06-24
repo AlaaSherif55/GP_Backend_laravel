@@ -12,7 +12,8 @@ class Prescriptions extends Model
         'patient_id',
         'doctor_id',
         'prescription_image',
-        'description'
+        'description',
+        'read'
     ];
 
     public function patient()

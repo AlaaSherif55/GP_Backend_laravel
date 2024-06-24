@@ -10,6 +10,9 @@ use App\Models\Doctor;
 use App\Models\DoctorAppointment;
 use App\Models\Prescriptions;
 
+use App\Http\Controllers\API\AuthController;
+
+
 use Illuminate\Http\Request;
 
 use App\Http\Resources\DoctorResource;
@@ -24,9 +27,13 @@ class DoctorController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $doctors = Doctor::with('user')->get();
 
+        return response()->json([
+            "status" => "success",
+            "data" => DoctorResource::collection($doctors)
+        ]);
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -56,9 +63,14 @@ class DoctorController extends Controller
     
             $user = $doctor->user;
             $user->update($request->all());
-    
+                
+            
             $doctor->update($request->all());
-          
+            if (!empty($request['image'])) {
+                $doctor->image = app('App\Http\Controllers\API\AuthController')->uploadFileToCloudinary($request, 'image');
+                $doctor->save();
+            }
+           
             DB::commit();
             $doctor->refresh();
             return response()->json([
@@ -84,16 +96,35 @@ class DoctorController extends Controller
     {
         //
     }
-    public function getDoctorAppointments( string $doctor_id ){
-        // $perPage = request()->query('perPage', 7);
-        $doctor = new DoctorResource(Doctor::find($doctor_id));
-        // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
-        $appointments = DoctorAppointment::with(['patient.user'])
-        ->where('doctor_id', $doctor_id)
-        ->get();
-        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
+    // public function getDoctorAppointments( string $doctor_id ){
+    //     // $perPage = request()->query('perPage', 7);
+    //     // $appointments = DoctorAppointment::where('doctor_id', $doctor_id)->get();
+    //     $appointments = DoctorAppointment::with(['patient.user'])
+    //     ->where('doctor_id', $doctor_id)
+    //     ->get();
+    //     return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
 
+    // }
+    public function getDoctorAppointments(string $doctor_id){
+        $kindOfVisit = request()->query('kind_of_visit');
+        $date = request()->query('date');
+
+        $query = DoctorAppointment::with(['patient.user'])
+            ->where('doctor_id', $doctor_id);
+
+        if ($kindOfVisit !== "all") {
+            $query->where('kind_of_visit', $kindOfVisit);
+        }
+
+        if ($date) {
+            $query->whereDate('date', $date);
+        }
+
+        $appointments = $query->get();
+
+        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
     }
+
     public function ApproveDoctorAppointments( Request $request,string $appointment_id ){
         $appointment = DoctorAppointment::find($appointment_id);
         
@@ -122,14 +153,40 @@ class DoctorController extends Controller
         return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
 
     }
+    public function getReadPrescriptions(string $doctor_id) {
+        $prescriptions = Prescriptions::with(['patient.user'])
+            ->where('doctor_id', $doctor_id)
+            ->where('read', 1)
+            ->get();
+    
+        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+    }
+    public function getUnreadPrescriptions(string $doctor_id) {
+        $prescriptions = Prescriptions::with(['patient.user'])
+            ->where('doctor_id', $doctor_id)
+            ->where('read', 0)
+            ->get();
+    
+        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+    }
+    
     public function ReplyToDoctorPrescription( Request $request,string $prescription_id ){
         $prescription = Prescriptions::find($prescription_id);
         
         if ($prescription) {
-            $prescription->update(['description' =>$request['description']]);
+            $prescription->update(['description' =>$request['description'] , 'read' => 1]);
             return response()->json(["message" => "your description added successfully"],200);
         } else {
             return response()->json(["message" => "prescription not found"], 404);
+        }
+    }
+    public function VerifyDoctor( Request $request,string $doctor_id ){
+        $doctor = Doctor::find($doctor_id);
+        if ($doctor) {
+            $doctor->update(['verification_status' =>$request['verification_status']]);
+            return response()->json(["message" => "Doctor Verified successfully"],200);
+        } else {
+            return response()->json(["message" => "Doctor not found"], 404);
         }
     }
 
