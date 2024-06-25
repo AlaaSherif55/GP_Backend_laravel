@@ -8,6 +8,8 @@ use App\Http\Requests\StoreNurseAppointmentRequest;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\StorePrescriptionsRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Http\Resources\DoctorAppointmentsResource;
+use App\Http\Resources\NurseAppointmentsResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\PrescriptionsResource;
 use App\Models\Doctor;
@@ -147,37 +149,41 @@ class PatientController extends Controller
     public function getAllAppointments(Patient $patient, Request $request)
     {
         try {
+
             $patient = Patient::findOrFail($patient->id);
             $query = $request->all();
-            $doctorAppointments = json_decode($patient->doctor_appointments, true);
-            $nurseAppointments = json_decode($patient->nurse_appointments, true);
-
-            $appointments = array_merge($doctorAppointments, $nurseAppointments);
-            $totalLength = count($appointments);
-            $appointments = array_slice(
-                $appointments, 
-                $query['page'] * $query['rowsPerPage'],
-                $query['rowsPerPage'],
-            );
-
-                // Extract all doctor and nurse IDs
-            $doctorIds = array_column($appointments, 'doctor_id');
-            $nurseIds = array_column($appointments, 'nurse_id');
             
-            // Combine the IDs and remove duplicates
-            $userIds = array_unique(array_merge($doctorIds, $nurseIds));
-
-            // Fetch the users with these IDs
-            $users = User::whereIn('id', $userIds)->pluck('name', 'id');
-
-            // Map the user names back to the appointments
-            foreach ($appointments as &$appointment) {
-                if (isset($appointment['doctor_id'])) {
-                    $appointment['doctor_name'] = $users[$appointment['doctor_id']] ?? 'Unknown Doctor';
-                }
-                if (isset($appointment['nurse_id'])) {
-                    $appointment['nurse_name'] = $users[$appointment['nurse_id']] ?? 'Unknown Nurse';
-                }
+            $appointments = collect();
+            $totalLength = 0;
+    
+            if (isset($query['type']) && $query['type'] == "Doctor") {
+                $appointments = $patient->doctor_appointments()
+                                         ->with('doctor.user') // Ensure doctor and associated user data are loaded
+                                         ->get()
+                                         ->map(function ($appointment) {
+                                             $appointment->name = $appointment->doctor->user->name ?? 'Unknown';
+                                             return $appointment;
+                                         });
+    
+                $totalLength = $appointments->count();
+            } else if (isset($query['type']) && $query['type'] == "Nurse") {
+                $appointments = $patient->nurse_appointments()
+                                         ->with('nurse.user')
+                                         ->get()
+                                         ->map(function ($appointment) {
+                                             $appointment->name = $appointment->nurse->user->name ?? 'Unknown';
+                                             return $appointment;
+                                         });
+    
+                $totalLength = $appointments->count();
+            } else {
+                return response()->json(['error' => 'Invalid type specified. Please use "Doctor" or "Nurse".'], 400);
+            }
+    
+            if (isset($query['page']) && isset($query['rowsPerPage'])) {
+                $page = (int) $query['page'];
+                $rowsPerPage = (int) $query['rowsPerPage'];
+                $appointments = $appointments->slice($page * $rowsPerPage, $rowsPerPage)->values();
             }
             
             return response()->json([
