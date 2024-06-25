@@ -119,7 +119,7 @@ class DoctorController extends Controller
         if ($date) {
             $query->whereDate('date', $date);
         }
-        
+
         $appointments = $query->paginate($perPage);
 
         return response()->json([
@@ -164,20 +164,42 @@ class DoctorController extends Controller
 
     }
     public function getReadPrescriptions(string $doctor_id) {
+        $perPage = request()->query('perPage', 5);
         $prescriptions = Prescriptions::with(['patient.user'])
             ->where('doctor_id', $doctor_id)
             ->where('read', 1)
-            ->get();
+            ->paginate($perPage);
     
-        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+        return response()->json([
+            "status" => "success",
+            "data" => PrescriptionsResource::collection($prescriptions),
+            "pagination" =>  [
+                "total" => $prescriptions->total(),
+                "count" => $prescriptions->count(),
+                "per_page" => $prescriptions->perPage(),
+                "current_page" => $prescriptions->currentPage(),
+                "total_pages" => $prescriptions->lastPage()
+                 ]
+            ]);
     }
     public function getUnreadPrescriptions(string $doctor_id) {
+        $perPage = request()->query('perPage', 5);
         $prescriptions = Prescriptions::with(['patient.user'])
             ->where('doctor_id', $doctor_id)
             ->where('read', 0)
-            ->get();
+            ->paginate($perPage);
     
-        return response()->json(["status" => "success", "data" => PrescriptionsResource::collection($prescriptions)]);
+        return response()->json([
+            "status" => "success", 
+            "data" => PrescriptionsResource::collection($prescriptions),
+            "pagination" =>  [
+                    "total" => $prescriptions->total(),
+                    "count" => $prescriptions->count(),
+                    "per_page" => $prescriptions->perPage(),
+                    "current_page" => $prescriptions->currentPage(),
+                    "total_pages" => $prescriptions->lastPage()
+                    ]
+                ]);
     }
     
     public function ReplyToDoctorPrescription( Request $request,string $prescription_id ){
