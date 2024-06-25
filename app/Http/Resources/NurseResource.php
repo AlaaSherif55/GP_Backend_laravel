@@ -26,6 +26,7 @@ class NurseResource extends JsonResource
             'image'=>$this->image,
             'university'=>$this->university,
             'qualifications'=>$this->qualifications,
+            'specialization'=>$this->specialization,
             'city'=> $this->city , 
             'fees'=> $this->fees , 
             'online'=> $this->online , 
