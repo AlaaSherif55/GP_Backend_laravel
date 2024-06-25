@@ -157,6 +157,10 @@ Route::get('nurses', function (Request $request) {
         $query->where('fees', '<=', $request->input('fees'));
     }
 
+    if ($request->has('specialization') && $request->input('specialization') !== '')
+    {
+        $query->where('specialization', $request->input('specialization'));
+    }
 
     if ($request->has('name') && $request->input('name') !== '') 
     {
