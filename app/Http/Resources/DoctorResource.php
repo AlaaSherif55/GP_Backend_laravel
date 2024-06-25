@@ -39,6 +39,7 @@ class DoctorResource extends JsonResource
             'home_work_end'=> $this-> home_work_end, 
             'work_days'=> $this-> work_days, 
             'average_rating'=> $this->averageRating(),
+            "verification_status"=>$this->verification_status,
         ];
     }
 }
