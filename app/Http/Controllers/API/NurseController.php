@@ -98,25 +98,39 @@ class NurseController extends Controller
     //     return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
 
     // }
-    public function getNurseAppointments( string $nurse_id ){
+    public function getNurseAppointments(string $nurse_id)
+    {
         $status = request()->query('status');
         $date = request()->query('date');
-
+        $perPage = 2; // Set the number of items per page to 5
+    
         $query = NurseAppointment::with(['patient.user'])
-            ->where('nurse_id',$nurse_id);
-
+            ->where('nurse_id', $nurse_id);
+    
         if ($status && $status !== "all") {
             $query->where('status', $status);
         }
-
+    
         if ($date) {
             $query->whereDate('date', $date);
         }
-
-        $appointments = $query->get();
-
-        return response()->json(["status" => "success", "data" => NurseAppointmentsResource::collection($appointments)]);
+    
+        // Use paginate with a limit of 5 items per page
+        $appointments = $query->paginate($perPage);
+    
+        return response()->json([
+            "status" => "success",
+            "data" => NurseAppointmentsResource::collection($appointments),
+            "pagination" => [
+                "total" => $appointments->total(),
+                "count" => $appointments->count(),
+                "per_page" => $appointments->perPage(),
+                "current_page" => $appointments->currentPage(),
+                "total_pages" => $appointments->lastPage(),
+            ]
+        ]);
     }
+    
     public function ApproveNurseAppointments( Request $request,string $appointment_id ){
         $appointment = NurseAppointment::find($appointment_id);
         if ($appointment) {
