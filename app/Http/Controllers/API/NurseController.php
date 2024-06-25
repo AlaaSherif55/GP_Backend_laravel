@@ -102,7 +102,7 @@ class NurseController extends Controller
     {
         $status = request()->query('status');
         $date = request()->query('date');
-        $perPage = 5; 
+        $perPage = request()->query('perPage', 5);
     
         $query = NurseAppointment::with(['patient.user'])
             ->where('nurse_id', $nurse_id);
