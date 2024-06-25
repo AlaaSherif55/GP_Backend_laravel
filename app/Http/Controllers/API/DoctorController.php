@@ -106,8 +106,9 @@ class DoctorController extends Controller
 
     // }
     public function getDoctorAppointments(string $doctor_id){
-        $kindOfVisit = request()->query('kind_of_visit');
+        $kindOfVisit = request()->query('kind_of_visit', 'all'); 
         $date = request()->query('date');
+        $perPage = request()->query('perPage', 5);
 
         $query = DoctorAppointment::with(['patient.user'])
             ->where('doctor_id', $doctor_id);
@@ -115,14 +116,23 @@ class DoctorController extends Controller
         if ($kindOfVisit !== "all") {
             $query->where('kind_of_visit', $kindOfVisit);
         }
-
         if ($date) {
             $query->whereDate('date', $date);
         }
+        
+        $appointments = $query->paginate($perPage);
 
-        $appointments = $query->get();
-
-        return response()->json(["status" => "success", "data" => DoctorAppointmentsResource::collection($appointments)]);
+        return response()->json([
+            "status" => "success",
+            "data" => DoctorAppointmentsResource::collection($appointments),
+            "pagination" => [
+                "total" => $appointments->total(),
+                "count" => $appointments->count(),
+                "per_page" => $appointments->perPage(),
+                "current_page" => $appointments->currentPage(),
+                "total_pages" => $appointments->lastPage()
+            ]
+        ]);
     }
 
     public function ApproveDoctorAppointments( Request $request,string $appointment_id ){
