@@ -41,7 +41,10 @@ class HospitalController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $hospital = Hospital::findOrFail($id);
+        $hospital->update($request->all());
+        $hospital->user->update($request->all());
+        return response()->json(["message" => "hospital updated successfully"],200);
     }
 
     /**
