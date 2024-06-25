@@ -23,13 +23,16 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('hospitals/{hospital}/applications', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'getApplications']);
-Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'updateStatus']);
-Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class,'getAllICUs']);
-Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']);
+Route::get('hospitals/{hospital}/applications', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'getApplications']); //hospital
+Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'updateStatus']);  //hospital
+Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class,'getAllICUs']); //any
+Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']); //hospital
 Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
-Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class);
-
+Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class); //any
+Route::get('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'show']); //hospital
+Route::put('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'update']); //hospital
+Route::get('/hospital', [\App\Http\Controllers\API\HospitalController::class, 'index']); //admin
+Route::put('hospital/{hospital}/verification', [\App\Http\Controllers\API\HospitalController::class, 'updateVerificationStatus']); //admin
 Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
 
 Route::apiResource("doctors",DoctorController::class);
@@ -37,6 +40,7 @@ Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctor
 Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"]); 
 Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"]); 
 Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
+Route::patch("/doctors/{doctor}/verify",[DoctorController::class,"VerifyDoctor"]); 
 
 Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
@@ -81,6 +85,10 @@ Route::get('doctors', function (Request $request) {
         $query->where('clinic_fees', '<=', $request->input('fees'));
     }
 
+    if ($request->has('visit'))
+    {
+        $query->where('visit', $request->input('visit'));
+    }
     if ($request->has('name') && $request->input('name') !== '') 
     {
         $name = $request->input('name');
@@ -89,12 +97,28 @@ Route::get('doctors', function (Request $request) {
         });
     }
 
+    if ($request->has('status') && $request->input('status') !== '')
+    {
+        $query->where('verification_status', $request->input('status'));
+    }
+
+    $query->leftJoinSub(
+            'SELECT doctor_id, AVG(rating) as average_rating FROM doctor_ratings GROUP BY doctor_id',
+            'ratings',
+            'doctors.id',
+            '=',
+            'ratings.doctor_id'
+        )
+        ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $doctors = $query->with('user')->paginate(5);
     
     $doctors->getCollection()->transform(function ($doctor) {
     $doctor->average_rating = $doctor->averageRating();
         return $doctor;
     });
+
+
 
     return response()->json($doctors);
 });
@@ -142,6 +166,20 @@ Route::get('nurses', function (Request $request) {
         });
     }
 
+    if ($request->has('status') && $request->input('status') !== '')
+    {
+        $query->where('verification_status', $request->input('status'));
+    }
+
+    $query->leftJoinSub(
+        'SELECT nurse_id, AVG(rating) as average_rating FROM nurse_ratings GROUP BY nurse_id',
+        'ratings',
+        'nurses.id',
+        '=',
+        'ratings.nurse_id'
+    )
+    ->orderBy('average_rating', $request->input('sort_order', 'desc'));
+
     $nurses = $query->with('user')->paginate(5);
 
 
@@ -181,6 +219,9 @@ Route::get('nurses/{id}/reviews', function($id) {
         "data" => $ratings
     ]);
 });
+
+// get top doctors
+Route::get('doctors/top-doctors', [DoctorController::class, 'getTopDoctors']);
 
 // Registeration
 Route::post('DoctorRegister', [AuthController::class, 'doctorRegister']);
@@ -267,3 +308,6 @@ Route::apiResource("patients", PatientController::class);
 Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments']);
 Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments']);
 Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments']);
+Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription']);
+Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions']);
+

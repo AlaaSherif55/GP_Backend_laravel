@@ -404,6 +404,15 @@ class AuthController extends Controller
                 ];
             }
         }
+        elseif ($user->role == "hospital") {
+            $hospital = Hospital::find($user->userable_id);
+            if ($hospital) {
+                return [
+
+                    'user' => new HospitalResource($hospital),
+                ];
+            }
+        }
     
         return response()->json(['error' => 'Invalid user role or no associated data found'], 400);
     }

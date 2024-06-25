@@ -11,7 +11,7 @@ class StorePrescriptionsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class StorePrescriptionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'doctor_id' => 'required',
+            'prescription_image' => 'required',
+           // 'description' => 'required',
         ];
     }
 }
