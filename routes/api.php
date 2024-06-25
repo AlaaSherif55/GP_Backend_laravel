@@ -18,6 +18,8 @@ use \App\Models\Doctor;
 use \App\Models\Nurse;
 use \App\Models\DoctorRating;
 use \App\Models\NurseRating;
+use App\Models\Prescriptions;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -53,8 +55,31 @@ Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::cl
 Route::patch("/nurses/{nurse}/verify",[NurseController::class,"VerifyNurse"]); 
 
 // Get Doctors
+// Get Doctors
 Route::get('doctors', function (Request $request) {
     $query = Doctor::query();
+
+    if ($request->has('topActiveUser')) {
+        $topActiveDoctors = Prescriptions::select('doctor_id', DB::raw('count(*) as prescriptions_count'))
+            ->whereNotNull('description')
+            ->where('description', '!=', '')
+            ->groupBy('doctor_id')
+            ->orderBy('prescriptions_count', 'desc')
+            ->with(['doctor.user'])
+            ->limit(5)
+            ->get();
+    
+        return response()->json([
+            "status" => "success",
+            "data" => $topActiveDoctors->map(function($prescription) {
+                return [
+                    'doctor_id' => $prescription->doctor_id,
+                    'doctor_name' => $prescription->doctor->user->name,
+                    'prescriptions_count' => $prescription->prescriptions_count,
+                ];
+            }),
+        ]);
+    }
 
     if ($request->has('city') && $request->input('city') !== '')
     {
@@ -122,6 +147,7 @@ Route::get('doctors', function (Request $request) {
 
     return response()->json($doctors);
 });
+
 
 // get doctor
 Route::get('doctors/{id}', function ($id) {
