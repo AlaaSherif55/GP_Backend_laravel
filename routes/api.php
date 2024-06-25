@@ -94,7 +94,10 @@ Route::get('doctors', function (Request $request) {
         });
     }
 
-    $query->where('verification_status', 'accepted');
+    if ($request->has('status') && $request->input('status') !== '')
+    {
+        $query->where('verification_status', $request->input('status'));
+    }
 
     $query->leftJoinSub(
             'SELECT doctor_id, AVG(rating) as average_rating FROM doctor_ratings GROUP BY doctor_id',
@@ -160,7 +163,10 @@ Route::get('nurses', function (Request $request) {
         });
     }
 
-    $query->where('verification_status', 'accepted');
+    if ($request->has('status') && $request->input('status') !== '')
+    {
+        $query->where('verification_status', $request->input('status'));
+    }
 
     $query->leftJoinSub(
         'SELECT nurse_id, AVG(rating) as average_rating FROM nurse_ratings GROUP BY nurse_id',
