@@ -25,34 +25,34 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('hospitals/{hospital}/applications', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'getApplications']); //hospital
-Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'updateStatus']);  //hospital
+Route::get('hospitals/{hospital}/applications', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'getApplications'])->middleware('role:hospital');//hospital
+Route::put('/applications/{application}', [\App\Http\Controllers\API\IntensiveCareApplicationController::class, 'updateStatus'])->middleware('role:hospital');  //hospital
 Route::get('/icus',[\App\Http\Controllers\API\IntensiveCareUnitController::class,'getAllICUs']); //any
-Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs']); //hospital
-Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class);
+Route::get('/intensive-care-units/{hospital}', [\App\Http\Controllers\API\IntensiveCareUnitController::class, 'getHospitalICUs'])->middleware('role:hospital'); //hospital
+Route::apiResource('/intensive-care-units', \App\Http\Controllers\API\IntensiveCareUnitController::class)->middleware('role:hospital'); 
 Route::apiResource('/intensive-care-applications', \App\Http\Controllers\API\IntensiveCareApplicationController::class); //any
-Route::get('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'show']); //hospital
-Route::put('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'update']); //hospital
-Route::get('/hospital', [\App\Http\Controllers\API\HospitalController::class, 'index']); //admin
-Route::put('hospital/{hospital}/verification', [\App\Http\Controllers\API\HospitalController::class, 'updateVerificationStatus']); //admin
+Route::get('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'show'])->middleware('role:hospital'); //hospital
+Route::put('/hospital/{hospital}', [\App\Http\Controllers\API\HospitalController::class, 'update'])->middleware('role:hospital'); //hospital
+Route::get('/hospital', [\App\Http\Controllers\API\HospitalController::class, 'index'])->middleware('role:admin'); //admin
+Route::put('hospital/{hospital}/verification', [\App\Http\Controllers\API\HospitalController::class, 'updateVerificationStatus'])->middleware('role:admin'); //admin
 Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
 
-Route::apiResource("doctors",DoctorController::class);
-Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctorPrescriptions"]);
-Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"]); 
-Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"]); 
-Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"]); 
-Route::patch("/doctors/{doctor}/verify",[DoctorController::class,"VerifyDoctor"]); 
+Route::apiResource("doctors",DoctorController::class)->middleware('role:doctor');
+Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctorPrescriptions"])->middleware('role:doctor');
+Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"])->middleware('role:doctor'); 
+Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"])->middleware('role:doctor'); 
+Route::patch("/doctors/prescriptions/{prescription}/reply",[DoctorController::class,"ReplyToDoctorPrescription"])->middleware('role:doctor'); 
+Route::patch("/doctors/{doctor}/verify",[DoctorController::class,"VerifyDoctor"])->middleware('role:admin'); 
 
-Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"]); 
-Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"]); 
-Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"]); 
+Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorAppointments"])->middleware('role:doctor'); 
+Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"])->middleware('role:doctor'); 
+Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"])->middleware('role:doctor'); 
 
-Route::apiResource("nurses",NurseController::class);
-Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"]); 
-Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"]); 
-Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"]); 
-Route::patch("/nurses/{nurse}/verify",[NurseController::class,"VerifyNurse"]); 
+Route::apiResource("nurses",NurseController::class)->middleware('role:nurse');
+Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"])->middleware('role:nurse'); 
+Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"])->middleware('role:nurse');  
+Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"])->middleware('role:nurse'); 
+Route::patch("/nurses/{nurse}/verify",[NurseController::class,"VerifyNurse"])->middleware('role:admin'); 
 
 // Get Doctors
 // Get Doctors
@@ -333,11 +333,11 @@ Route::post('/reset-password', function (Request $request) {
         : response()->json(['error' => [__($status)]]);
 })->middleware('guest')->name('password.update');
 
-Route::apiResource("patients", PatientController::class);
+Route::apiResource("patients", PatientController::class)->middleware('role:patient,doctor');
 
-Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments']);
-Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments']);
-Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments']);
-Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription']);
-Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions']);
+Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments'])->middleware('role:patient'); 
+Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments'])->middleware('role:patient');
+Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments'])->middleware('role:patient');
+Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription'])->middleware('role:patient');
+Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions'])->middleware('role:patient');
 
