@@ -24,6 +24,7 @@ class UpdateIntensiveCareUnitRequest extends FormRequest
         return [
             'capacity' => ['required', 'integer'],
             'equipments' => ['required' , 'exists:equipment,id'],
+            'code'=> ['required', 'string', 'max:255'],
         ];
     }
     public function messages(): array
@@ -33,6 +34,9 @@ class UpdateIntensiveCareUnitRequest extends FormRequest
             'capacity.integer' => 'The capacity must be an integer.',
             'equipments.required' => 'The equipments field is required.',
             'equipments.exists' => 'One or more selected equipments do not exist.',
+            'code.required' => 'The code field is required.',
+            'code.string' => 'The code must be a string.',
+            'code.max' => 'The code may not be greater than 255 characters.',
         ];
     }
 
