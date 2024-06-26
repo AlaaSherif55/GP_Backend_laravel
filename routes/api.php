@@ -332,7 +332,7 @@ Route::post('/reset-password', function (Request $request) {
         : response()->json(['error' => [__($status)]]);
 })->middleware('guest')->name('password.update');
 
-Route::apiResource("patients", PatientController::class)->middleware('role:patient,doctor');
+Route::apiResource("patients", PatientController::class)->middleware('role:patient,doctor,nurse');
 
 Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments'])->middleware('role:patient'); 
 Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments'])->middleware('role:patient');
