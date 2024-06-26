@@ -37,15 +37,21 @@ class IntensiveCareUnitController extends Controller
     {
         $request_params = $request->validated();
         $hospital_id = $request_params['hospital_id'];
-
-        $equipments =$request_params['equipments'];
+    
+        $code = $request_params['code'];
+        $equipments = $request_params['equipments'];
+    
         $icu = IntensiveCareUnit::create([
             'hospital_id' => $hospital_id,
             'capacity' => $request_params['capacity'],
+            'code' => $code 
         ]);
+    
         $icu->equipments()->attach($equipments);
+    
         return response()->json($icu, 201);
     }
+    
 
     /**
      * Display the specified resource.
@@ -64,12 +70,22 @@ class IntensiveCareUnitController extends Controller
         $icu = IntensiveCareUnit::findOrFail($id);
         $request_params = $request->validated();
         $request_params['hospital_id'] = $icu->hospital_id;
-        $equipments = $request_params['equipments'];
-         $icu->update($request_params);
-        $icu->equipments()->sync($equipments);
+    
         
-        return response()->json(new IntensiveCareUnitResource($icu) , 200);
+        $code = $request_params['code'];
+        $equipments = $request_params['equipments'];
+    
+        
+        $icu->update([
+            'capacity' => $request_params['capacity'],
+            'code' => $code 
+        ]);
+    
+        $icu->equipments()->sync($equipments);
+    
+        return response()->json(new IntensiveCareUnitResource($icu), 200);
     }
+    
 
     /**
      * Remove the specified resource from storage.
