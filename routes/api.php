@@ -89,11 +89,11 @@ Route::get('doctors', function (Request $request) {
     {
         $query->where('visit', $request->input('visit'));
     }
+    
     if ($request->has('name') && $request->input('name') !== '') 
     {
-        $name = $request->input('name');
-        $query->whereHas('user', function ($q) use ($name) {
-            $q->where('name', 'like', '%' . $name . '%');
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->whereRaw('LOWER(name) LIKE ?', ['%'. strtolower($request->input('name')).'%'] );
         });
     }
 
@@ -164,9 +164,8 @@ Route::get('nurses', function (Request $request) {
 
     if ($request->has('name') && $request->input('name') !== '') 
     {
-        $name = $request->input('name');
-        $query->whereHas('user', function ($q) use ($name) {
-            $q->where('name', 'like', '%' . $name . '%');
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->whereRaw('LOWER(name) LIKE ?', ['%'. strtolower($request->input('name')).'%'] );
         });
     }
 
