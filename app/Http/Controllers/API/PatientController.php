@@ -14,7 +14,9 @@ use App\Http\Resources\PatientResource;
 use App\Http\Resources\PrescriptionsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAppointment;
+use App\Models\DoctorRating;
 use App\Models\NurseAppointment;
+use App\Models\NurseRating;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\Prescriptions;
@@ -106,22 +108,27 @@ class PatientController extends Controller
     /**
      * Reserve a doctor.
      */
-    public function reserveDoctor(StoreDoctorAppointmentRequest $request)
+    public function reviewDoctor(Request $request, Patient $patient)
     {
         try {
-            $validated = $request->validated();
+            $data = $request->all();
+            DB::beginTransaction();
+            $doctorRating = new DoctorRating();
+            $doctorRating->rating = $data['rating'];
+            $doctorRating->review = $data['review'];
+            $doctorRating->patient_id = $patient->id;
+            $doctorRating->doctor_id = $data['medic_id'];
 
-            $appointment = new DoctorAppointment();
-            $appointment->patient_id = $validated['patient_id'];
-            $appointment->doctor_id = $validated['doctor_id'];
-            $appointment->kind_of_visit = $validated['kind_of_visit'];
-            $appointment->day = $validated['day'];
+            $appointment = DoctorAppointment::findOrFail($data['appointment_id']);
+            $appointment->is_reviewed = true;
 
+            $doctorRating->save();
             $appointment->save();
-
-            return response()->json($appointment);
+            DB::commit();
+            return response()->json();
         }
         catch(Exception $e) {
+            DB::rollBack();
             return response()->json($e->getMessage());
         }
     }
@@ -129,21 +136,27 @@ class PatientController extends Controller
     /**
      * Reserve a nurse.
      */
-    public function reserveNurse(StoreNurseAppointmentRequest $request)
+    public function reviewNurse(Request $request, Patient $patient)
     {
         try {
-            $validated = $request->validated();
+            $data = $request->all();
+            DB::beginTransaction();
+            $nurseRating = new NurseRating();
+            $nurseRating->rating = $data['rating'];
+            $nurseRating->review = $data['review'];
+            $nurseRating->patient_id = $patient->id;
+            $nurseRating->nurse_id = $data['medic_id'];
 
-            $appointment = new DoctorAppointment();
-            $appointment->patient_id = $validated['patient_id'];
-            $appointment->doctor_id = $validated['doctor_id'];
-            $appointment->day = $validated['day'];
+            $appointment = NurseAppointment::findOrFail($data['appointment_id']);
+            $appointment->is_reviewed = true;
 
+            $nurseRating->save();
             $appointment->save();
-
-            return response()->json($appointment);
+            DB::commit();
+            return response()->json();
         }
         catch(Exception $e) {
+            DB::rollBack();
             return response()->json($e->getMessage());
         }
     }
@@ -255,7 +268,7 @@ class PatientController extends Controller
         }
     }
 
-    public function payment(Request $request) {
+    public function paymentAndReserve(Request $request) {
         try {
             DB::beginTransaction();
             $data = $request->all();

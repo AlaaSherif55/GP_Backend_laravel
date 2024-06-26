@@ -337,7 +337,9 @@ Route::apiResource("patients", PatientController::class)->middleware('role:patie
 Route::get('patients/{patient}/appointments', [PatientController::class, 'getAllAppointments'])->middleware('role:patient'); 
 Route::get('patients/{patient}/appointments/doctors', [PatientController::class, 'getDoctorAppointments'])->middleware('role:patient');
 Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 'getNurseAppointments'])->middleware('role:patient');
+Route::post('patients/{patient}/reviews/doctors', [PatientController::class, 'reviewDoctor']);
+Route::post('patients/{patient}/reviews/nurses', [PatientController::class, 'reviewNurse']);
 Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription'])->middleware('role:patient');
 Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions'])->middleware('role:patient');
 
-Route::post('payments', [PatientController::class, 'payment']);
+Route::post('payments', [PatientController::class, 'paymentAndReserve']);
