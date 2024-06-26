@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('hospitals', function (Blueprint $table) {
-            $table->enum('verification_status', ['pending', 'accepted', 'rejected'])->default('pending');
+        Schema::table('payments', function (Blueprint $table) {
+            $table->dropMorphs('payable');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('hospitals', function (Blueprint $table) {
-            $table->dropColumn('verification_status');
+        Schema::table('payments', function (Blueprint $table) {
+            $table->morphs('payable');
         });
     }
 };

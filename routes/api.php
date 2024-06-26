@@ -37,7 +37,7 @@ Route::get('/hospital', [\App\Http\Controllers\API\HospitalController::class, 'i
 Route::put('hospital/{hospital}/verification', [\App\Http\Controllers\API\HospitalController::class, 'updateVerificationStatus'])->middleware('role:admin'); //admin
 Route::apiResource('/equipment', \App\Http\Controllers\API\EquipmentController::class);
 
-Route::apiResource("doctors",DoctorController::class)->middleware('role:doctor');
+Route::apiResource("doctors",DoctorController::class);//->middleware('role:doctor');
 Route::get("/doctors/{doctor}/prescriptions",[DoctorController::class,"getDoctorPrescriptions"])->middleware('role:doctor');
 Route::get("/doctors/{doctor}/prescriptions/read",[DoctorController::class,"getReadPrescriptions"])->middleware('role:doctor'); 
 Route::get("/doctors/{doctor}/prescriptions/unread",[DoctorController::class,"getUnreadPrescriptions"])->middleware('role:doctor'); 
@@ -48,7 +48,7 @@ Route::get("/doctors/{doctor}/appointments",[DoctorController::class,"getDoctorA
 Route::patch("/doctors/appointments/{appointment}/approve",[DoctorController::class,"ApproveDoctorAppointments"])->middleware('role:doctor'); 
 Route::patch("/doctors/appointments/{appointment}/add-notes",[DoctorController::class,"AddNoteToDoctorAppointments"])->middleware('role:doctor'); 
 
-Route::apiResource("nurses",NurseController::class)->middleware('role:nurse');
+Route::apiResource("nurses",NurseController::class);//->middleware('role:nurse');
 Route::get("/nurses/{nurse}/appointments",[NurseController::class,"getNurseAppointments"])->middleware('role:nurse'); 
 Route::patch("/nurses/appointments/{appointment}/approve",[NurseController::class,"ApproveNurseAppointments"])->middleware('role:nurse');  
 Route::patch("/nurses/appointments/{appointment}/add-notes",[NurseController::class,"AddNoteToNurseAppointments"])->middleware('role:nurse'); 
@@ -114,11 +114,11 @@ Route::get('doctors', function (Request $request) {
     {
         $query->where('visit', $request->input('visit'));
     }
+    
     if ($request->has('name') && $request->input('name') !== '') 
     {
-        $name = $request->input('name');
-        $query->whereHas('user', function ($q) use ($name) {
-            $q->where('name', 'like', '%' . $name . '%');
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->whereRaw('LOWER(name) LIKE ?', ['%'. strtolower($request->input('name')).'%'] );
         });
     }
 
@@ -190,9 +190,8 @@ Route::get('nurses', function (Request $request) {
 
     if ($request->has('name') && $request->input('name') !== '') 
     {
-        $name = $request->input('name');
-        $query->whereHas('user', function ($q) use ($name) {
-            $q->where('name', 'like', '%' . $name . '%');
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->whereRaw('LOWER(name) LIKE ?', ['%'. strtolower($request->input('name')).'%'] );
         });
     }
 
@@ -341,3 +340,4 @@ Route::get('patients/{patient}/appointments/nurses', [PatientController::class, 
 Route::post('patients/{patient}/prescription', [PatientController::class, 'uploadPrescription'])->middleware('role:patient');
 Route::get('patients/{patient}/prescription', [PatientController::class, 'getPrescriptions'])->middleware('role:patient');
 
+Route::post('payments', [PatientController::class, 'payment']);
