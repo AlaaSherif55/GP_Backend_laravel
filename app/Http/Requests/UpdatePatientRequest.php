@@ -23,10 +23,9 @@ class UpdatePatientRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string|max:255',
-            'history' => 'nullable|string',
+            'history' => 'required|string|max:255',
             'phone' => 'required|string|max:15|min:7',
             'birth_date' => 'required|date',
-            'gender' => 'required|string|in:m,f',
         ];
     }
 }
