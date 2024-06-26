@@ -14,7 +14,9 @@ use App\Http\Resources\PatientResource;
 use App\Http\Resources\PrescriptionsResource;
 use App\Models\Doctor;
 use App\Models\DoctorAppointment;
+use App\Models\NurseAppointment;
 use App\Models\Patient;
+use App\Models\Payment;
 use App\Models\Prescriptions;
 use App\Models\User;
 use Exception;
@@ -253,7 +255,44 @@ class PatientController extends Controller
         }
     }
 
-    public function payment() {
-        
+    public function payment(Request $request) {
+        try {
+            DB::beginTransaction();
+            $data = $request->all();
+            $payment = new Payment();
+            
+            $payment->amount = $data['amount'];
+            $payment->order_id = $data['order_id'];
+            $payment->patient_id = $data['patient_id'];
+
+            $appointment = null;
+
+            if ($data['medic_role'] == "doctor") {
+                $appointment = new DoctorAppointment();
+                $appointment->doctor_id = $data['medic_id'];
+                $appointment->kind_of_visit = $data['kind_of_visit'];
+            }
+            else {
+                $appointment = new NurseAppointment();
+                $appointment->nurse_id = $data['medic_id'];
+            }
+
+            $appointment->patient_id = $data['patient_id'];
+            $appointment->day = $data['day'];
+            $appointment->date = $data['date'];
+
+            $payment->save();
+            $appointment->save();
+
+            DB::commit();
+
+            return response()->json([
+                $payment,
+                $appointment,
+            ]);
+        }
+        catch(Exception $e) {
+            return response()->json($e->getMessage());
+        }
     }
 }
