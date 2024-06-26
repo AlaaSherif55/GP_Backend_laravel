@@ -37,10 +37,8 @@ class IntensiveCareUnitController extends Controller
     {
         $request_params = $request->validated();
         $hospital_id = $request_params['hospital_id'];
-    
         $code = $request_params['code'];
         $equipments = $request_params['equipments'];
-    
         $icu = IntensiveCareUnit::create([
             'hospital_id' => $hospital_id,
             'capacity' => $request_params['capacity'],
@@ -70,20 +68,19 @@ class IntensiveCareUnitController extends Controller
         $icu = IntensiveCareUnit::findOrFail($id);
         $request_params = $request->validated();
         $request_params['hospital_id'] = $icu->hospital_id;
-    
         
         $code = $request_params['code'];
         $equipments = $request_params['equipments'];
     
-        
-        $icu->update([
-            'capacity' => $request_params['capacity'],
-            'code' => $code 
-        ]);
+      
+            $icu->update([
+                'capacity' => $request_params['capacity'],
+                'code' => $code 
+            ]);
     
-        $icu->equipments()->sync($equipments);
+            $icu->equipments()->sync($equipments);
     
-        return response()->json(new IntensiveCareUnitResource($icu), 200);
+            return response()->json(new IntensiveCareUnitResource($icu), 200);
     }
     
 
@@ -125,4 +122,5 @@ class IntensiveCareUnitController extends Controller
             'last_page' => (int) ceil($totalICUs / $itemsPerPage),
         ]);
     }
+
 }
