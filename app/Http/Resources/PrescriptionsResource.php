@@ -19,6 +19,8 @@ class PrescriptionsResource extends JsonResource
         return [
             'id' => $this->id,
             'doctor_id'=>$this->doctor_id,
+            'doctor_name'=>$this->doctor->user->name,
+            'doctor_phone'=>$this->doctor->user->phone,
             'patient_id'=>$this->patient_id,
             'user_id'=>$this->patient->user->id,
             'prescription_image'=>$this->prescription_image,
