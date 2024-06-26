@@ -11,6 +11,7 @@ class IntensiveCareUnit extends Model
     protected $fillable = [
         'hospital_id',
         'capacity',
+        'code'
         
     ];
 
